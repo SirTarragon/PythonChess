@@ -39,15 +39,15 @@ class Pawn(Piece):
 
     # Range Functions ===========================
     def getMoveRange(self):
-        if self._player = -1 and self._y = 6:
+        if self._player == -1 and self._y == 6:
             # bottom of screen is player 2, starting position is 6 of 7
             return {(self._x, (self._y - 1)), (self._x, (self._y - 2))}
-        elif self._player = -1:
+        elif self._player == -1:
             return {(self._x, (self._y - 1))}
-        elif self._player = 1 and self._y = 1:
+        elif self._player == 1 and self._y == 1:
             # top of screen is player 1, starting position for pawn is 1 of 7
             return {(self._x, (self._y + 1)), (self._x, (self._y + 2))}
-        elif self._player = 1:
+        elif self._player == 1:
             return {(self._x, (self._y + 1))}
 
     def getCaptureRange(self):
