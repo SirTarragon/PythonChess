@@ -28,7 +28,7 @@ class Piece:
     # However that's from the perspective of the player, bottom moving
     # up would be subtracting from the grid value to go "up"
 
-    def __init__(self, x, y, player):
+    def __init__(self, x: int, y: int, player: int) -> None:
         # constructor for the class
         # we're under the assumption that the input values for the player/team are correct
         self._x = x
@@ -36,29 +36,29 @@ class Piece:
         self._player = player
 
     # Update Functions ==========================
-    def updateCoordinate(self, x, y):
+    def updateCoordinate(self, x: int, y: int) -> None:
         self._x = x
         self._y = y
 
-    def updatePlayer(self, player):
+    def updatePlayer(self, player: int) -> None:
         self._player = player
 
     # Get Functions =============================
-    def getCoordinate(self):
+    def getCoordinate(self) -> tuple:
         return (self._x, self._y)
 
-    def getXValue(self):  # for checking to make sure
+    def getXValue(self) -> int:  # for checking to make sure
         return self._x
     
-    def getYValue(self):
+    def getYValue(self) -> int:
         return self._y
 
-    def getPlayer(self):
+    def getPlayer(self) -> int:
         return self._player
 
 class Pawn(Piece):
     # Movement Function =========================
-    def movePiece(self, distance_y):
+    def movePiece(self, distance_y: int):
         # distance should usually be 1
         for i in self.getMoveRange():    # validate movement is in movement range
             if(i == (self._x, self._y + (self._player * distance_y)):
@@ -101,7 +101,7 @@ class Rook(Piece):
     # . . . . * . . .
 
     # Movement Function ==========================
-    def movePiece(self, distance_x, distance_y):
+    def movePiece(self, distance_x: int, distance_y: int):
       for i in self.getMoveRange():
         if(i == (self._x + (self._player * distance_x), self._y + (self._player * distance_y)):
           self.updateCoordinate((self._x + (self._player * distance_x), self._y + (self._player * distance_y))
@@ -143,7 +143,7 @@ class Bishop(Piece):
     # . . * . . . * .
 
     # Movement Function ==========================
-    def movePiece(self, distance_x, distance_y):
+    def movePiece(self, distance_x: int, distance_y: int):
       for i in self.getMoveRange():
         if(i == (self._x + (self._player * distance_x), self._y + (self._player * distance_y)):
           self.updateCoordinate((self._x + (self._player * distance_x), self._y + (self._player * distance_y))
@@ -176,7 +176,7 @@ class Knight(Piece):
     # so [(x-1,y-2),(x+1,y-2),(x-2,y-1),(x+2,y-1),(x-2,y+1),(x+2,y+1),(x-1,y+2),(x+1,y+2)]
 
     # Movement Function ==========================
-    def movePiece(self, distance_x, distance_y):
+    def movePiece(self, distance_x: int, distance_y: int):
       for i in self.getMoveRange():
         if(i == (self._x + (self._player * distance_x), self._y + (self._player * distance_y)):
           self.updateCoordinate((self._x + (self._player * distance_x), self._y + (self._player * distance_y))
@@ -220,7 +220,7 @@ class Queen(Piece):
     # . . * . * . * .
 
     # Movement Function ==========================
-    def movePiece(self, distance_x, distance_y):
+    def movePiece(self, distance_x: int, distance_y: int):
       for i in self.getMoveRange():
         if(i == (self._x + (self._player * distance_x), self._y + (self._player * distance_y)):
           self.updateCoordinate((self._x + (self._player * distance_x), self._y + (self._player * distance_y))
@@ -251,7 +251,7 @@ class King(Piece):
     # . . . . . . . .
 
     # Movement Function ==========================
-    def movePiece(self, distance_x, distance_y):
+    def movePiece(self, distance_x: int, distance_y: int):
       for i in self.getMoveRange():
         if(i == (self._x + (self._player * distance_x), self._y + (self._player * distance_y)):
           self.updateCoordinate((self._x + (self._player * distance_x), self._y + (self._player * distance_y))
