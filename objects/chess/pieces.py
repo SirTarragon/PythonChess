@@ -12,6 +12,21 @@ class Piece:
     # _x, _y, _player
     # _x, _y should be stored as numerical data
     # player should be stored as either 1 or -1
+    # this is because the grid goes from
+    #   0 1 2 3 4 5 6 7
+    # 0 R K B C Q B K R
+    # 1 P P P P P P P P
+    # 2 . . . . . . . .
+    # 3 . . . . . . . .
+    # 4 . . . . . . . .
+    # 5 . . . . . . . .
+    # 6 P P P P P P P P
+    # 7 R K B C Q B K R
+
+    # With one player starting near the top with units moving down,
+    # and the other starting from the bottom with units moving up.
+    # However that's from the perspective of the player, bottom moving
+    # up would be subtracting from the grid value to go "up"
 
     def __init__(self, x, y, player):
         # constructor for the class
@@ -31,6 +46,12 @@ class Piece:
     # Get Functions =============================
     def getCoordinate(self):
         return (self._x, self._y)
+
+    def getXValue(self):  # for checking to make sure
+        return self._x
+    
+    def getYValue(self):
+        return self._y
 
     def getPlayer(self):
         return self._player
@@ -54,7 +75,7 @@ class Pawn(Piece):
             # top of screen is player 1, starting position for pawn is 1 of 7
             return {(self._x, (self._y + 1)), (self._x, (self._y + 2))}
         else:
-            if((self._y + self._player) < _board-game_y):
+            if(0 <= (self._y + self._player) and (self._y + self._player) < _board-game_y):
               return {(self._x, (self._y + self._player))}
             else:
               return {(self._x, self._y)}
@@ -123,6 +144,11 @@ class Bishop(Piece):
 
     # Movement Function ==========================
     def movePiece(self, distance_x, distance_y):
+      for i in self.getMoveRange():
+        if(i == (self._x + (self._player * distance_x), self._y + (self._player * distance_y)):
+          self.updateCoordinate((self._x + (self._player * distance_x), self._y + (self._player * distance_y))
+          return True # movement distance is within movement rnage, return true
+      return False  # it is not so return false
 
     # Range Functions ===========================
     def getMoveRange(self):
@@ -151,9 +177,27 @@ class Knight(Piece):
 
     # Movement Function ==========================
     def movePiece(self, distance_x, distance_y):
+      for i in self.getMoveRange():
+        if(i == (self._x + (self._player * distance_x), self._y + (self._player * distance_y)):
+          self.updateCoordinate((self._x + (self._player * distance_x), self._y + (self._player * distance_y))
+          return True # movement distance is within movement rnage, return true
+      return False  # it is not so return false
 
     # Range Functions ===========================
     def getMoveRange(self):
+        moveRange = {(self._x-1,self._y-2),(self._x+1,self._y-2),(self._x-2,self._y-1),(self._x+2,self._y-1),(self._x-2,self._y+1),(self._x+2,self._y+1),(self._x-1,self._y+2),(self._x+1,self._y+2)} # these are the only acceptable points so far
+
+        unacceptablePoints = {} # this holds the values of what turns out to be unacceptable
+
+        for i in moveRange: # this goes through to find which points are outside of board range
+          if (0 <= i[0] and i[0] < _board-game_x) and (0 <= i[1] and i[1] < _board-game_y):
+            unacceptablePoints.add(i)
+
+        if(len(unacceptablePoints) > 0):  # if any were, time to go through to delete them
+          for i in unacceptablePoints:
+            moveRange.remove(i)
+
+        return moveRange
 
     def getCaptureRange(self):
         return self.getMoveRange()
@@ -177,6 +221,11 @@ class Queen(Piece):
 
     # Movement Function ==========================
     def movePiece(self, distance_x, distance_y):
+      for i in self.getMoveRange():
+        if(i == (self._x + (self._player * distance_x), self._y + (self._player * distance_y)):
+          self.updateCoordinate((self._x + (self._player * distance_x), self._y + (self._player * distance_y))
+          return True # movement distance is within movement rnage, return true
+      return False  # it is not so return false
 
     # Range Functions ===========================
     def getMoveRange(self):
@@ -189,7 +238,7 @@ class King(Piece):
     # 0 1 2 3 4 5 6 7
     # . . . . . . . .
     # . . . . . . . .
-    # . . . . K . . .
+    # . . . . C . . .
     # . . . . . . . .
     # . . . . . . . .
 
@@ -197,12 +246,17 @@ class King(Piece):
     # 0 1 2 3 4 5 6 7
     # . . . . . . . .
     # . . . * * * . .
-    # . . . * K * . .
+    # . . . * C * . .
     # . . . * * * . .
     # . . . . . . . .
 
     # Movement Function ==========================
     def movePiece(self, distance_x, distance_y):
+      for i in self.getMoveRange():
+        if(i == (self._x + (self._player * distance_x), self._y + (self._player * distance_y)):
+          self.updateCoordinate((self._x + (self._player * distance_x), self._y + (self._player * distance_y))
+          return True # movement distance is within movement rnage, return true
+      return False  # it is not so return false
 
     # Range Functions ===========================
     def getMoveRange(self):
