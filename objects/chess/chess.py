@@ -26,22 +26,22 @@ class Chess():
         row2,col2 = move_to
         #validate data passed:
         if Chess.__out_of_bounds(row1) or Chess.__out_of_bounds(col1):
-            return False
+            return -1
         if Chess.__out_of_bounds(row2) or Chess.__out_of_bounds(col2):
-            return False
+            return -1
         piece_to_move = self._board[row1][col1]
         if not piece_to_move:
-            return False
+            return -1
         if piece_to_move.is_white() != self._turn:
-            return False
+            return -1
         
         #Check if the piece selected can move to the desired location
         #can_move will handle the brunt of the game logic
         if not self.__can_move(to_move, move_to):
-            return False
+            return -1
         
-        self.__move_piece(to_move, move_to)
-        return True
+        return self.__move_piece(to_move, move_to)
+        
 
     def valid_moves(self, to_move: tuple) -> tuple:
         #Returns a tuple of tuples
