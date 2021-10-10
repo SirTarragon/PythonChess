@@ -59,6 +59,10 @@ class Chess():
         return copy.deepcopy(self._board)
 
     def __can_move(self, to_move: tuple, move_to: tuple) -> bool:
+        #Assume vald data, this is indicated as a private method
+        #Should only be called by the class after data is validated already
+        
+        #Get the piece at to_move, then branch to if statements based on piece
         pass
 
     def __move_piece(self, to_move: tuple, move_to: tuple) -> None:
@@ -80,9 +84,7 @@ class Chess():
 
     @staticmethod
     def get_starting_board() -> List[List[pieces.Piece]]:
-        board = [None]*8
-        for i in range(8):
-            board[i] = [None]*8
+        board = [[None for _ in range(8)] for _ in range(8)]
         for i in range(8):
             board[1][i] = pieces.Pawn(pieces.Type.PAWN, color = False)
         for i in range(8):
