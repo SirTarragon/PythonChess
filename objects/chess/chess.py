@@ -8,7 +8,7 @@ import newPieces as pieces
 #And converting mouse clicks to attempt_move
 
 
-class Chess():
+class Chess:
     #Can expand upon this later to take arguments to load a game
     #Load a game w/board + whose turn, anymore info needed?
     #Reference: self._board[row][col]
@@ -33,6 +33,8 @@ class Chess():
         if not piece_to_move:
             return -1
         if piece_to_move.is_white() != self._turn:
+            return -1
+        if to_move == move_to:
             return -1
         
         #Check if the piece selected can move to the desired location
@@ -59,11 +61,56 @@ class Chess():
         return copy.deepcopy(self._board)
 
     def __can_move(self, to_move: tuple, move_to: tuple) -> bool:
-        #Assume vald data, this is indicated as a private method
-        #Should only be called by the class after data is validated already
-        
+        #Data passed should already be validated, but it doesn't hurt to validate again
+        row1,col1 = to_move
+        row2,col2 = move_to
+        if Chess.__out_of_bounds(row1) or Chess.__out_of_bounds(col1):
+            return False
+        if Chess.__out_of_bounds(row2) or Chess.__out_of_bounds(col2):
+            return False
+        piece_to_move = self._board[row1][col1]
+        if not piece_to_move:
+            return False
+        #Don't check turns here, leaves the function open for more usage
+        #Cannot land on own piece ever, right?
+        piece_to_remove = self._board[row2][col2]
+        if piece_to_remove and piece_to_remove.is_white() and piece_to_move.is_white():
+            return False
+        if piece_to_remove and (not piece_to_remove.is_white()) and (not piece_to_move.is_white()):
+            return False
+        #Cannot move to own spot
+        if to_move == move_to: 
+            return False
+
         #Get the piece at to_move, then branch to if statements based on piece
-        pass
+        if piece_to_move.get_type() == pieces.Type.PAWN:
+            #a pawn may move 2 spaces if not yet moved
+            #one space forward anytime
+            #diag to take an occupied opp
+            #diag to take an empty spot if adjacent is opp pawn (en passant)
+            direction = piece_to_move.is_white() and row1 - 2 or row1 + 2
+            if (not piece_to_move.get_moved()) and not Chess.__out_of_bounds(direction):
+                if row2 == direction and col2 == col1 and not self._board[row2][col2]:
+                    #attempt to move an unmoved pawn 2 spaces
+                    #modify board
+                    self._board[row2][col2] = piece_to_move
+                    self._board[row1][col1] = None
+                    #check if your own move puts you in check/checkmate
+                    checked = self.__in_check(piece_to_move.is_white())
+                    if checked: 
+                        self._board[row1][col1] = piece_to_move
+                        self._board[row2][col2] = None
+                        return False
+                    checked = self.__in_check_mate(piece_to_move.is_white())
+                    if checked:
+                        self._board[row1][col1] = piece_to_move
+                        self._board[row2][col2] = None
+                        return False                        
+                    self._board[row1][col1] = piece_to_move
+                    self._board[row2][col2] = None
+                    return True
+
+
 
     def __move_piece(self, to_move: tuple, move_to: tuple) -> None:
         #Returns 0 if the result of the move leaves the game in a stalemate
@@ -73,6 +120,36 @@ class Chess():
         #Returns 4 if the result of the move results in black in check
         #Returns 5 if the result of the move is normal play
         #Should probably just use enums for better legibility 
+        pass
+
+    def __check_for_check(self, to_move: tuple, move_to: tuple) -> bool:
+        row1,col1 = to_move
+        row2,col2 = move_to
+        piece_to_move = self._board[row1][col1]
+        self._board[row2][col2] = piece_to_move
+        self._board[row1][col1] = None
+        checked = self.__in_check(piece_to_move.is_white())
+        if checked:
+            self._board[row1][col1] = piece_to_move
+            self._board[row2][col2] = None
+            return False
+        checked = self.__in_check_mate(piece_to_move.is_white())
+        if checked:
+            self._board[row1][col1] = piece_to_move
+            self._board[row2][col2] = None
+            return False
+        self._board[row1][col1] = piece_to_move
+        self._board[row2][col2] = None
+        return True
+
+
+    def __in_check(self, check_white: bool) -> bool:
+        #Returns true/false based on self._board
+        #if check_white then check if white is checked
+        #if not check_white then check if black is checked
+        pass
+
+    def __in_check_mate(self) -> bool:
         pass
 
     @staticmethod
