@@ -1,3 +1,4 @@
+
 import copy
 from typing import List
 import newPieces as pieces
@@ -71,6 +72,19 @@ class Chess:
         #returns empty tuple if no valid moves available, or invalid input
         #Easiest way I think would be validating to_move and then calling can_move on all squares
         #index and return any that return true, although that may prove inefficient
+        row,col = to_move
+        piece_to_move = self._board[row][col]
+
+        if(piece_to_move.get_type() == Type.PAWN):
+
+        elif(piece_to_move.get_type() == Type.ROOK):
+
+        elif(piece_to_move.get_type() == Type.BISHOP):
+
+        elif(piece_to_move.get_type() == Type.QUEEN):
+
+        elif(piece_to_move.get_type() == Type.KING):
+
         pass
 
     def get_board(self) -> List[List[pieces.Piece]]:
@@ -135,8 +149,14 @@ class Chess:
                 if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN:
                     return self.__check_for_check(to_move, move_to)
             return False
-
-
+        elif piece_to_move.get_type() == Type.ROOK:
+          pass
+        elif piece_to_move.get_type() == Type.BISHOP:
+          pass
+        elif piece_to_move.get_type() == Type.QUEEN:
+          pass
+        elif piece_to_move.get_type() == Type.KING:
+          pass
 
 
     def __move_piece(self, to_move: tuple, move_to: tuple) -> None:
@@ -144,7 +164,26 @@ class Chess:
         #Completes the move with no data validation
         #Updates the gamestate after completing the move
         #Returns updated gamestate
-        pass
+        row1,col1 = to_move
+        row2,col2 = move_to
+        piece_to_move = self._board[row1][col1]
+        self._board[row2][col2] = piece_to_move
+        self._board[row1][col1] = None
+
+        #update the gamestate
+        #check if one player is in check or checkmate
+        if self.__in_check_mate(True) and self.__in_check_mate(False):
+          self._game_state = State.STALEMATE
+        elif self.__in_check_mate(True):
+          self._game_state = State.WHITE_CHECKMATED
+        elif self.__in_check_mate(False):
+          self._game_state = State.BLACK_CHECKMATED
+        elif self.__in_check(True):
+          self._game_state = State.WHITE_IN_CHECK
+        elif self.__in_check(False):
+          self._game_state = State.BLACK_IN_CHECK
+        else:
+          self._game_state = State.NORMAL
 
     def __check_for_check(self, to_move: tuple, move_to: tuple) -> bool:
         row1,col1 = to_move
@@ -171,6 +210,27 @@ class Chess:
         #Returns true/false based on self._board
         #if check_white then check if white is checked
         #if not check_white then check if black is checked
+        
+        #first find king position of type
+        col_of_king,row_of_king = -1,-1
+        for row in range(0,8):
+          for col in range(0,8):
+            if(self._board[row][col] != None):
+              if(self._board[row][col].get_type() == Type.KING and check_white == board[row][col].is_white()):
+                row_of_king = row
+                col_of_king = col
+                break
+          if(col_of_king >= 0 and row_of_king >= 0):
+            break
+
+        #check if pawn rules can check
+
+        #check if rook rules can check
+
+        #check if bishop rules can check
+
+        #check if queen rules can check
+        #might be able to combine it with rook and bishop rules
         pass
 
     def __in_check_mate(self, check_white: bool) -> bool:

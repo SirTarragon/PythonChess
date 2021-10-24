@@ -3,14 +3,14 @@
 # these values should be able to be changed through the module
 _board-game_x = 8
 _board-game_y = 8
-_board = [[. for x in range(_board-game_x)] for y in range(_board-game_y)]
+_board = [['.' for x in range(_board-game_x)] for y in range(_board-game_y)]
 
 def updateGameSize(x, y):
   _board-game_x = x
   _board-game_y = y
 
   # for redrawing of size, it'll clear the board. Will require import from game into module
-  updateGameBoard([[. for x in range(_board-game_x)] for y in range(_board-game_y)])
+  updateGameBoard([['.' for x in range(_board-game_x)] for y in range(_board-game_y)])
 
 # I'm not sure if this is necessary, but if we want to integrate validation in here
 # we need to be able to see if there's another piece
@@ -102,6 +102,9 @@ class Pawn(Piece):
     # . . . * . * . .
     # . . . . . . . .
 
+    def __init__(self, x: int, y: int, player: int) -> None:
+      Piece.__init__(self, x, y, player, 'P')
+
     # Movement Function =========================
     def movePiece(self, distance_y: int):
         # distance should usually be 1
@@ -152,6 +155,9 @@ class Rook(Piece):
     # * * * * R * * *
     # . . . . * . . .
     # . . . . * . . .
+
+    def __init__(self, x: int, y: int, player: int) -> None:
+      Piece.__init__(self, x, y, player, 'R')
 
     # Movement Function ==========================
     def movePiece(self, distance_x: int, distance_y: int):
@@ -204,6 +210,9 @@ class Bishop(Piece):
     # . . . . B . . .
     # . . . * . * . .
     # . . * . . . * .
+
+    def __init__(self, x: int, y: int, player: int) -> None:
+      Piece.__init__(self, x, y, player, 'B')
 
     # Movement Function ==========================
     def movePiece(self, distance_x: int, distance_y: int):
@@ -259,6 +268,9 @@ class Knight(Piece):
 
     # so [(x-1,y-2),(x+1,y-2),(x-2,y-1),(x+2,y-1),(x-2,y+1),(x+2,y+1),(x-1,y+2),(x+1,y+2)]
 
+    def __init__(self, x: int, y: int, player: int) -> None:
+      Piece.__init__(self, x, y, player, 'K')
+
     # Movement Function ==========================
     def movePiece(self, distance_x: int, distance_y: int):
       for i in self._moveRange:
@@ -308,6 +320,9 @@ class Queen(Piece):
     # * * * * Q * * *
     # . . . * * * . .
     # . . * . * . * .
+
+    def __init__(self, x: int, y: int, player: int) -> None:
+      Piece.__init__(self, x, y, player, 'Q')
 
     # Movement Function ==========================
     def movePiece(self, distance_x: int, distance_y: int):
@@ -371,6 +386,9 @@ class King(Piece):
     # . . . * * * . .
     # . . . . . . . .
 
+    def __init__(self, x: int, y: int, player: int, pieceID = 'C': char) -> None:
+      Piece.__init__(self, x, y, player, pieceID)
+
     # Movement Function ==========================
     def movePiece(self, distance_x: int, distance_y: int):
       for i in self.getMoveRange():
@@ -396,18 +414,18 @@ class King(Piece):
 
 # for playtesting of other things
 if __name__ == "__main__":
-  board = [[. for x in range(_board-game_x)] for y in range(_board-game_y)]
+  board = [['.' for x in range(_board-game_x)] for y in range(_board-game_y)]
 
-    #   0 1 2 3 4 5 6 7
-    # 0 R K B C Q B K R
-    # 1 P P P P P P P P
-    # 2 . . . . . . . .
-    # 3 . . . . . . . .
-    # 4 . . . . . . . .
-    # 5 . . . . . . . .
-    # 6 P P P P P P P P
-    # 7 R K B C Q B K R
-    # Piece(x: int, y: int, player: int)
+  #   0 1 2 3 4 5 6 7
+  # 0 R K B C Q B K R
+  # 1 P P P P P P P P
+  # 2 . . . . . . . .
+  # 3 . . . . . . . .
+  # 4 . . . . . . . .
+  # 5 . . . . . . . .
+  # 6 P P P P P P P P
+  # 7 R K B C Q B K R
+  # Piece(x: int, y: int, player: int)
 
   # White
   board[0][0] = Rook(0,0,1)
