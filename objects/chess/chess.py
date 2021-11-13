@@ -1,6 +1,6 @@
 import copy
 from typing import List
-import newPieces as pieces
+import pieces as pieces
 from enums import PieceType as Type, GameState as State
 
 # A Chess instance is a game of chess
@@ -26,13 +26,13 @@ class Chess:
         """
         (tuple, tuple) -> State
         Takes 2 tuples of 2 ints each, [0-7], where the first tuple represents
-        the location of a piece to move, and the 2nd tuple represents the 
+        the location of a piece to move, and the 2nd tuple represents the
         location to move to.
 
         returns type State, an enum representing the resulting gamestate
         after the move is processed. In the event that invalid input is passed
         the gamestate will not change, then it's incumbent upon a user to check the
-        turn has (hasn't) changed. 
+        turn has (hasn't) changed.
         """
         row1, col1 = to_move
         row2, col2 = move_to
@@ -62,7 +62,7 @@ class Chess:
         returns the tuple of tuples where each element is
         a (row, col) ([0-7],[0-7]), to which a piece may move
         If the move is 'possible' but results in check/checkmate, it will not
-        be included. 
+        be included.
         """
         # Returns a tuple of tuples
         # Each tuple is a row,col to which the piece located @to_move may move to
