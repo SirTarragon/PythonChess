@@ -414,8 +414,7 @@ class Chess:
         board = [[None for _ in range(8)] for _ in range(8)]
         for i in range(8):
             board[1][i] = pieces.Pawn(color=False)
-        for i in range(8):
-            board[6][i] = pieces.Pawn()
+            board[6][i] = pieces.Pawn(color=True)
         for i in range(4):
             piece_to_add = pieces.Rook(color=(i > 1 and True or False))
             board[i > 1 and 7 or 0][i % 2 and 7 or 0] = piece_to_add
