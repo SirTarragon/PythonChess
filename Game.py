@@ -1,16 +1,18 @@
 from objects.chess.chess import Chess
 import pygame as p
+import sys
 
 # knowing the width and height (pixel count/area of screen)
 # dimensions of board is usually always 8
 # need to know the length of the squares and something global to hold the images
 # and probably a set FPS for drawing
 
-_WIDTH = _HEIGHT = 672
+_WIDTH = _HEIGHT = 516
 _DIMENSIONS = 8
 _SQLEN = _HEIGHT // _DIMENSIONS
 _IMAGES = {}    # dictionary/hashmap. For quick image lookup
-_MAXFPS = 15
+_MINFPS = 15
+_MAXFPS = 30
 
 # need to load the images
 def loadImages():
@@ -60,29 +62,37 @@ def drawPieces(screen, board):
                 # draw to the screen the piece, box it in as a rectangle
                 screen.blit(_IMAGES[lookup], p.Rect(col*_SQLEN, row*_SQLEN, _SQLEN, _SQLEN))
 
+def main_menu(screen, clock):
+    while True:
+        screen.fill((0,0,0))
+        draw_text('')
+
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
-def main():
-    p.init()        # initialize pygame
+def ChessGame(screen, clock):
+    screen.fill(p.Color("white"))
     loadImages()
     p.display.set_caption("Chess")
     p.display.set_icon(_IMAGES['brook'])
     game = Chess()  # need to initialize the game by calling the class
-    screen = p.display.set_mode((_WIDTH, _HEIGHT))
-    screen.fill(p.Color("white"))
-    clock = p.time.Clock()
     session = True
 
     # game loop
     while session:
         for event in p.event.get():
             if event.type == p.QUIT:
-                session = False
                 p.quit()
+                sys.exit()
+            if event.type == p.KEYDOWN:
+                if event.key == p.K_ESCAPE:
+                    session = False
         drawGame(screen, game)
-        clock.tick(_MAXFPS)
+        clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
 
 if __name__ == "__main__":
-    main() # main game for the board
+    p.init()        # initialize pygame
+    clock = p.time.Clock()
+    screen = p.display.set_mode((_WIDTH, _HEIGHT))
+    ChessGame(screen, clock) # main game for the board
     # will likely want to return to main menu of the whole game system
