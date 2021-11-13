@@ -1,7 +1,7 @@
 import copy
 from typing import List
-import pieces as pieces
-from enums import PieceType as Type, GameState as State
+import objects.chess.pieces as pieces
+from objects.chess.enums import PieceType as Type, GameState as State
 
 # A Chess instance is a game of chess
 # Game logic for new game:
@@ -85,7 +85,7 @@ class Chess:
         pass
 
     def get_board(self) -> List[List[pieces.Piece]]:
-        """()-> List[List[pieces.Piece]
+        """()-> List[List[pieces.Piece]]
         returns a deepcopy of the present board
         """
         # return copy of list to prevent modification
