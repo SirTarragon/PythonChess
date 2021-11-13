@@ -238,7 +238,9 @@ class Chess:
         col_of_king, row_of_king = -1, -1
         for row_num, row in enumerate(self._board):
             for col_num, col in enumerate(row):
-                if col.get_type() == Type.KING and check_white == col.is_white():
+                if col == None:
+                    break
+                elif col.get_type() == Type.KING and check_white == col.is_white():
                     col_of_king = col_num
                     row_of_king = row_num
                     break
@@ -246,14 +248,156 @@ class Chess:
                 break
 
         # check if pawn rules can check
+        if check_white:
+            checkrow = row_of_king - 1
+            checkcol = col_of_king - 1
+            if(self._board[checkrow][checkcol] != None):
+                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and self._board[checkrow][checkcol].is_white() != check_white):
+                    return True
+            checkcol += 2
+            if(self._board[checkrow][checkcol] != None):
+                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and self._board[checkrow][checkcol].is_white() != check_white):
+                    return True
+        else:
+            checkrow = row_of_king + 1
+            checkcol = col_of_king -1
+            if(self._board[checkrow][checkcol] != None):
+                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and self._board[checkrow][checkcol].is_white() != check_white):
+                    return True
+            checkcol += 2
+            if(self._board[checkrow][checkcol] != None):
+                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and self._board[checkrow][checkcol].is_white() != check_white):
+                    return True
 
-        # check if rook rules can check
+        # check if rook rules can check (Queen as well)
+        # checking the rows
+        for checkrow in reversed(range(0, row_of_king)):
+            if(self._board[checkrow][col_of_king] != None):
+                if(self._board[checkrow][col_of_king].is_white() == check_white):
+                    break
+                elif(self._board[checkrow][col_of_king].get_type() == Type.ROOK or self._board[checkrow][col_of_king].get_type() == Type.QUEEN):
+                    return True
+                else:
+                    break
+        for checkrow in range(row_of_king+1, 8):
+            if(self._board[checkrow][col_of_king] != None):
+                if(self._board[checkrow][col_of_king].is_white() == check_white):
+                    break
+                elif(self._board[checkrow][col_of_king].get_type() == Type.ROOK or self._board[checkrow][col_of_king].get_type() == Type.QUEEN):
+                    return True
+                else:
+                    break
 
-        # check if bishop rules can check
+        # checking the columns
+        for checkcol in reversed(range(0, col_of_king)):
+            if(self._board[row_of_king][checkcol] != None):
+                if(self._board[row_of_king][checkcol].is_white() == check_white):
+                    break
+                elif(self._board[row_of_king][checkcol].get_type() == Type.ROOK or self._board[row_of_king][checkcol].get_type() == Type.QUEEN):
+                    return True
+                else:
+                    break
+        for checkcol in range(col_of_king+1, 8):
+            if(self._board[row_of_king][checkcol] != None):
+                if(self._board[row_of_king][checkcol].is_white() == check_white):
+                    break
+                elif(self._board[row_of_king][checkcol].get_type() == Type.ROOK or self._board[row_of_king][checkcol].get_type() == Type.QUEEN):
+                    return True
+                else:
+                    break
 
-        # check if queen rules can check
-        # might be able to combine it with rook and bishop rules
-        pass
+        # check if bishop rules can check (Queen as well)
+        checkrow = row_of_king - 1
+        checkcol = col_of_king + 1
+        while(checkrow >= 0 and checkcol < 8):
+            if(self._board[checkrow][checkcol] != None):
+                if(self._board[checkrow][checkcol].is_white() == check_white):
+                    break
+                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or self._board[checkrow][checkcol].get_type() == Type.QUEEN):
+                    return True
+                else:
+                    break
+            --checkrow
+            ++checkcol
+
+        checkrow = row_of_king - 1
+        checkcol = col_of_king - 1
+        while(checkrow >= 0 and checkcol >= 0):
+            if(self._board[checkrow][checkcol] != None):
+                if(self._board[checkrow][checkcol].is_white() == check_white):
+                    break
+                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or self._board[checkrow][checkcol].get_type() == Type.QUEEN):
+                    return True
+                else:
+                    break
+            --checkrow
+            --checkcol
+
+        checkrow = row_of_king + 1
+        checkcol = col_of_king + 1
+        while(checkrow < 8 and checkcol < 8):
+            if(self._board[checkrow][checkcol] != None):
+                if(self._board[checkrow][checkcol].is_white() == check_white):
+                    break
+                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or self._board[checkrow][checkcol].get_type() == Type.QUEEN):
+                    return True
+                else:
+                    break
+            ++checkrow
+            ++checkcol
+
+        checkrow = row_of_king + 1
+        checkcol = col_of_king - 1
+        while(checkrow < 8 and checkcol >= 0):
+            if(self._board[checkrow][checkcol] != None):
+                if(self._board[checkrow][checkcol].is_white() == check_white):
+                    break
+                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or self._board[checkrow][checkcol].get_type() == Type.QUEEN):
+                    return True
+                else:
+                    break
+            ++checkrow
+            --checkcol
+
+        # check if knight rules can check
+        if(row_of_king + 2 < 8 and col_of_king - 1 >= 0):
+            x = row_of_king + 2
+            y = col_of_king - 1
+            if(self._board[x][y].getType() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                return True
+            x = row_of_king - 1
+            y = col_of_king + 2
+            if(self._board[x][y].getType() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                return True
+        if(row_of_king + 2 < 8 and col_of_king + 1 < 8):
+            x = row_of_king + 2
+            y = col_of_king + 1
+            if(self._board[x][y].getType() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                return True
+            x = row_of_king + 1
+            y = col_of_king + 2
+            if(self._board[x][y].getType() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                return True
+        if(row_of_king - 2 >= 0 and col_of_king - 1 >= 0):
+            x = row_of_king - 2
+            y = col_of_king - 1
+            if(self._board[x][y].getType() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                return True
+            x = row_of_king - 1
+            y = col_of_king - 2
+            if(self._board[x][y].getType() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                return True
+        if(row_of_king - 2 >= 0 and col_of_king + 1 < 8):
+            x = row_of_king - 2
+            y = col_of_king + 1
+            if(self._board[x][y].getType() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                return True
+            x = row_of_king + 1
+            y = col_of_king - 2
+            if(self._board[x][y].getType() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                return True
+
+        return False
 
     def __in_check_mate(self, check_white: bool) -> bool:
         pass
