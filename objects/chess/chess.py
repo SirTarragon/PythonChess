@@ -252,21 +252,25 @@ class Chess:
             checkrow = row_of_king - 1
             checkcol = col_of_king - 1
             if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and self._board[checkrow][checkcol].is_white() != check_white):
+                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and
+                 self._board[checkrow][checkcol].is_white() != check_white):
                     return True
             checkcol += 2
             if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and self._board[checkrow][checkcol].is_white() != check_white):
+                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and
+                 self._board[checkrow][checkcol].is_white() != check_white):
                     return True
         else:
             checkrow = row_of_king + 1
             checkcol = col_of_king -1
             if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and self._board[checkrow][checkcol].is_white() != check_white):
+                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and
+                 self._board[checkrow][checkcol].is_white() != check_white):
                     return True
             checkcol += 2
             if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and self._board[checkrow][checkcol].is_white() != check_white):
+                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and
+                 self._board[checkrow][checkcol].is_white() != check_white):
                     return True
 
         # check if rook rules can check (Queen as well)
@@ -275,7 +279,8 @@ class Chess:
             if(self._board[checkrow][col_of_king] != None):
                 if(self._board[checkrow][col_of_king].is_white() == check_white):
                     break
-                elif(self._board[checkrow][col_of_king].get_type() == Type.ROOK or self._board[checkrow][col_of_king].get_type() == Type.QUEEN):
+                elif(self._board[checkrow][col_of_king].get_type() == Type.ROOK or
+                 self._board[checkrow][col_of_king].get_type() == Type.QUEEN):
                     return True
                 else:
                     break
@@ -283,7 +288,8 @@ class Chess:
             if(self._board[checkrow][col_of_king] != None):
                 if(self._board[checkrow][col_of_king].is_white() == check_white):
                     break
-                elif(self._board[checkrow][col_of_king].get_type() == Type.ROOK or self._board[checkrow][col_of_king].get_type() == Type.QUEEN):
+                elif(self._board[checkrow][col_of_king].get_type() == Type.ROOK or
+                 self._board[checkrow][col_of_king].get_type() == Type.QUEEN):
                     return True
                 else:
                     break
@@ -293,7 +299,8 @@ class Chess:
             if(self._board[row_of_king][checkcol] != None):
                 if(self._board[row_of_king][checkcol].is_white() == check_white):
                     break
-                elif(self._board[row_of_king][checkcol].get_type() == Type.ROOK or self._board[row_of_king][checkcol].get_type() == Type.QUEEN):
+                elif(self._board[row_of_king][checkcol].get_type() == Type.ROOK or
+                 self._board[row_of_king][checkcol].get_type() == Type.QUEEN):
                     return True
                 else:
                     break
@@ -301,7 +308,8 @@ class Chess:
             if(self._board[row_of_king][checkcol] != None):
                 if(self._board[row_of_king][checkcol].is_white() == check_white):
                     break
-                elif(self._board[row_of_king][checkcol].get_type() == Type.ROOK or self._board[row_of_king][checkcol].get_type() == Type.QUEEN):
+                elif(self._board[row_of_king][checkcol].get_type() == Type.ROOK or
+                 self._board[row_of_king][checkcol].get_type() == Type.QUEEN):
                     return True
                 else:
                     break
@@ -313,12 +321,13 @@ class Chess:
             if(self._board[checkrow][checkcol] != None):
                 if(self._board[checkrow][checkcol].is_white() == check_white):
                     break
-                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or self._board[checkrow][checkcol].get_type() == Type.QUEEN):
+                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or
+                 self._board[checkrow][checkcol].get_type() == Type.QUEEN):
                     return True
                 else:
                     break
-            --checkrow
-            ++checkcol
+            checkrow -= 1
+            checkcol += 1
 
         checkrow = row_of_king - 1
         checkcol = col_of_king - 1
@@ -326,12 +335,13 @@ class Chess:
             if(self._board[checkrow][checkcol] != None):
                 if(self._board[checkrow][checkcol].is_white() == check_white):
                     break
-                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or self._board[checkrow][checkcol].get_type() == Type.QUEEN):
+                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or
+                 self._board[checkrow][checkcol].get_type() == Type.QUEEN):
                     return True
                 else:
                     break
-            --checkrow
-            --checkcol
+            checkrow -= 1
+            checkcol -= 1
 
         checkrow = row_of_king + 1
         checkcol = col_of_king + 1
@@ -339,12 +349,13 @@ class Chess:
             if(self._board[checkrow][checkcol] != None):
                 if(self._board[checkrow][checkcol].is_white() == check_white):
                     break
-                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or self._board[checkrow][checkcol].get_type() == Type.QUEEN):
+                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or
+                 self._board[checkrow][checkcol].get_type() == Type.QUEEN):
                     return True
                 else:
                     break
-            ++checkrow
-            ++checkcol
+            checkrow += 1
+            checkcol += 1
 
         checkrow = row_of_king + 1
         checkcol = col_of_king - 1
@@ -352,12 +363,13 @@ class Chess:
             if(self._board[checkrow][checkcol] != None):
                 if(self._board[checkrow][checkcol].is_white() == check_white):
                     break
-                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or self._board[checkrow][checkcol].get_type() == Type.QUEEN):
+                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or
+                 self._board[checkrow][checkcol].get_type() == Type.QUEEN):
                     return True
                 else:
                     break
-            ++checkrow
-            --checkcol
+            checkrow += 1
+            checkcol -= 1
 
         # check if knight rules can check
         if(row_of_king + 2 < 8 and col_of_king - 1 >= 0):
