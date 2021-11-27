@@ -1,6 +1,7 @@
 import copy
 from typing import List
 import objects.chess.pieces as pieces
+import objects.chess.dbms as db
 from objects.chess.enums import PieceType as Type, GameState as State
 
 # A Chess instance is a game of chess
@@ -21,6 +22,8 @@ class Chess:
         self._board = Chess.get_starting_board()
         self._turn = True  # True indicates whether or not it's white's turn
         self._game_state = State.NORMAL
+        self._turnNum = 0
+        save_board()
 
     def attempt_move(self, to_move: tuple, move_to: tuple) -> State:
         """
@@ -193,6 +196,8 @@ class Chess:
         piece_to_move = self._board[row1][col1]
         self._board[row2][col2] = piece_to_move
         self._board[row1][col1] = None
+        self._turnNum += 1
+        self.save_board()
 
         # update the gamestate
         # check if one player is in check or checkmate
@@ -413,6 +418,37 @@ class Chess:
 
     def __in_check_mate(self, check_white: bool) -> bool:
         pass
+
+    def save_board() -> bool:
+        for row in range(8):
+            for col in range(8):
+                if self._board[row][col] != None:
+                    if (db.saveState(self._board[row][col].__str__(), self._board[row][col].is_white(), self._board[row], self._board[col], self._turn, self._turnNum) == False):
+                        print ("Board could not be saved successfully")
+                        return False
+        print ("Board saved successfully")
+        return True
+
+    def load_board(self, turnNumber = (self._turnNum - 1)) -> List[List[pieces.Piece]]:
+    #Loads previous state of the board. Takes in one parameter, which is the turn number the player wishes to return to. Default is previous round.
+        dataList = db.loadState(turnNumber)
+        tempBoard = [[None for i in range(8)] for i in range(8)]
+        for dataSet in dataList:
+            pieceName, col, row, column = dataSet
+            if pieceName == "O":
+                piece = pieces.Pawn(color = col)
+            elif pieceName == "B":
+                piece = pieces.Bishop(color = col)
+            elif pieceName == "N":
+                piece = pieces.Knight(color = col)
+            elif pieceName == "R":
+                piece = pieces.Rook(color = col)
+            elif pieceName == "K":
+                piece = pieces.King(color = col)
+            elif pieceName == "Q":
+                piece = pieces.Queen(color = col)
+            tempBoard[row][column] = piece
+        return tempBoard
 
     @staticmethod
     def __out_of_bounds(bounds: tuple) -> bool:
