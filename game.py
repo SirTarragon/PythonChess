@@ -14,6 +14,9 @@ _IMAGES = {}    # dictionary/hashmap. For quick image lookup
 _MINFPS = 15
 _MAXFPS = 30
 
+_ON_MENU = False
+_IN_GAME = False
+
 # need to load the images
 def loadImages():
     pieces = [
@@ -62,6 +65,13 @@ def drawPieces(screen, board):
                 # draw to the screen the piece, box it in as a rectangle
                 screen.blit(_IMAGES[lookup], p.Rect(col*_SQLEN, row*_SQLEN, _SQLEN, _SQLEN))
 
+def movePiece(board, playerMovment):
+    x1,y1 = playerMovment[0]
+    x2,y2 = playerMovment[1]
+
+    if board[x1][y1] != None:
+        board.attempt_move((x1,y1),(x2,y2))
+
 def main_menu(screen, clock):
     while True:
         screen.fill((0,0,0))
@@ -76,6 +86,10 @@ def ChessGame(screen, clock):
     p.display.set_icon(_IMAGES['brook'])
     game = Chess()  # need to initialize the game by calling the class
     session = True
+    _IN_GAME = True
+
+    selectedSquare = ()     # need something to hold the selected spot on the GUI
+    playerClicks = []       # need to keep track of the player clicks
 
     # game loop
     while session:
@@ -83,9 +97,25 @@ def ChessGame(screen, clock):
             if event.type == p.QUIT:
                 p.quit()
                 sys.exit()
-            if event.type == p.KEYDOWN:
+            elif event.type == p.KEYDOWN:
                 if event.key == p.K_ESCAPE:
                     session = False
+            elif event.type == p.MOUSEBUTTONDOWN and _ON_MENU:
+                location = p.mouse.get_pos()
+                col,row = location
+                col = col // _SQLEN
+                row = row // _SQLEN
+                if selectedSquare == (row,col):
+                    selectedSquare.clear()
+                    playerClicks.clear()
+                else:
+                    selectedSquare = (row, col)
+                    playerClicks.append(selectedSquare)
+
+                if len(playerClicks) == 2:
+                    movePiece(playerClicks)
+                    playerClicks.clear()
+
         drawGame(screen, game)
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
