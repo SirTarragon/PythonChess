@@ -115,13 +115,14 @@ def ChessGame(screen, clock):
                     selectedSquare = ()
                     playerClicks.clear()
                 else:
-                    selectedSquare = (col, row)
+                    selectedSquare = (row, col)
                     playerClicks.append(selectedSquare)
                     print(selectedSquare)
 
                 if len(playerClicks) == 2:
                     movePiece(game,playerClicks)
                     drawGame(screen,game)
+                    selectedSquare = ()
                     playerClicks.clear()
 
         drawGame(screen, game)

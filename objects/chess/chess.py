@@ -381,45 +381,49 @@ class Chess:
             x = row_of_king + 2
             y = col_of_king - 1
             if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
                     return True
+        if(row_of_king - 1 >= 0 and col_of_king + 2 < 8):
             x = row_of_king - 1
             y = col_of_king + 2
             if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
                     return True
         if(row_of_king + 2 < 8 and col_of_king + 1 < 8):
             x = row_of_king + 2
             y = col_of_king + 1
             if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
                     return True
+        if(row_of_king + 1 < 8 and col_of_king + 2 < 8):
             x = row_of_king + 1
             y = col_of_king + 2
             if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
                     return True
         if(row_of_king - 2 >= 0 and col_of_king - 1 >= 0):
             x = row_of_king - 2
             y = col_of_king - 1
             if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
                     return True
+        if(row_of_king - 1 >= 0 and col_of_king - 2 >= 0):
             x = row_of_king - 1
             y = col_of_king - 2
             if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
                     return True
         if(row_of_king - 2 >= 0 and col_of_king + 1 < 8):
             x = row_of_king - 2
             y = col_of_king + 1
             if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
                     return True
+        if(row_of_king + 1 < 8 and col_of_king - 2 >= 0):
             x = row_of_king + 1
             y = col_of_king - 2
             if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and board[x][y].is_white() != check_white):
+                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
                     return True
 
         return False
