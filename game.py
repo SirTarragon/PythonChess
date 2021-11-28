@@ -70,7 +70,8 @@ def movePiece(board, playerMovment):
     x2,y2 = playerMovment[1]
 
     if board[x1][y1] != None:
-        board.attempt_move((x1,y1),(x2,y2))
+        #print("Result: " + str(board.attempt_move((x1,y1),(x2,y2))))
+        print("Result: " + str(board.__move_piece(playerMovment[0], playerMovment[1])))
 
 def main_menu(screen, clock):
     while True:
@@ -111,6 +112,7 @@ def ChessGame(screen, clock):
                 else:
                     selectedSquare = (row, col)
                     playerClicks.append(selectedSquare)
+                    print(selectedSquare)
 
                 if len(playerClicks) == 2:
                     movePiece(playerClicks)

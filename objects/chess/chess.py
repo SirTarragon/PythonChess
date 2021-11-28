@@ -23,7 +23,7 @@ class Chess:
         self._turn = True  # True indicates whether or not it's white's turn
         self._game_state = State.NORMAL
         self._turnNum = 0
-        save_board()
+        self.save_board()
 
     def attempt_move(self, to_move: tuple, move_to: tuple) -> State:
         """
@@ -419,7 +419,7 @@ class Chess:
     def __in_check_mate(self, check_white: bool) -> bool:
         pass
 
-    def save_board() -> bool:
+    def save_board(self) -> bool:
         for row in range(8):
             for col in range(8):
                 if self._board[row][col] != None:
@@ -429,8 +429,10 @@ class Chess:
         print ("Board saved successfully")
         return True
 
-    def load_board(self, turnNumber = (self._turnNum - 1)) -> List[List[pieces.Piece]]:
+    def load_board(self, turnNumber = None) -> List[List[pieces.Piece]]:
     #Loads previous state of the board. Takes in one parameter, which is the turn number the player wishes to return to. Default is previous round.
+        if turnNumber == None:
+          turnNumber = self._turnNum - 1
         dataList = db.loadState(turnNumber)
         tempBoard = [[None for i in range(8)] for i in range(8)]
         for dataSet in dataList:
