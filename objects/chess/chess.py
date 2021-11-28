@@ -267,7 +267,7 @@ class Chess:
                     return True
         else:
             checkrow = row_of_king + 1
-            checkcol = col_of_king -1
+            checkcol = col_of_king - 1
             if(self._board[checkrow][checkcol] != None):
                 if(self._board[checkrow][checkcol].get_type() == Type.PAWN and
                  self._board[checkrow][checkcol].is_white() != check_white):
@@ -289,7 +289,7 @@ class Chess:
                     return True
                 else:
                     break
-        for checkrow in range(row_of_king+1, 8):
+        for checkrow in range(row_of_king + 1, 8):
             if(self._board[checkrow][col_of_king] != None):
                 if(self._board[checkrow][col_of_king].is_white() == check_white):
                     break
@@ -309,7 +309,7 @@ class Chess:
                     return True
                 else:
                     break
-        for checkcol in range(col_of_king+1, 8):
+        for checkcol in range(col_of_king + 1, 8):
             if(self._board[row_of_king][checkcol] != None):
                 if(self._board[row_of_king][checkcol].is_white() == check_white):
                     break
