@@ -263,7 +263,8 @@ class Chess:
         self._board[row2][col2] = piece_to_move
         self._board[row1][col1] = None
         self._turnNum += 1
-        self.save_board(move_to)
+        self.save_board()
+        self._turn = not self._turn
 
         # update the gamestate
         # check if one player is in check or checkmate
