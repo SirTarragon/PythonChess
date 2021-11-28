@@ -102,9 +102,6 @@ def ChessGame(screen, clock):
             elif event.type == p.KEYDOWN:
                 if event.key == p.K_ESCAPE:
                     pass
-
-            elif event.type == p.MOUSEBUTTONDOWN and _ON_MENU:
-                pass
             elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
                 location = p.mouse.get_pos()
                 col,row = location

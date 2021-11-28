@@ -213,6 +213,11 @@ class Chess:
             self._game_state = State.BLACK_IN_CHECK
         else:
             self._game_state = State.NORMAL
+        
+        if self.get_turn():
+          self._turn = False
+        else:
+          self._turn = True
 
     def __check_for_check(self, to_move: tuple, move_to: tuple) -> bool:
         row1, col1 = to_move
