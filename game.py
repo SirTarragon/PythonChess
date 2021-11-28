@@ -65,13 +65,14 @@ def drawPieces(screen, board):
                 # draw to the screen the piece, box it in as a rectangle
                 screen.blit(_IMAGES[lookup], p.Rect(col*_SQLEN, row*_SQLEN, _SQLEN, _SQLEN))
 
-def movePiece(board, playerMovment):
+def movePiece(game, playerMovment):
+    board = game.get_board()
     x1,y1 = playerMovment[0]
     x2,y2 = playerMovment[1]
 
     if board[x1][y1] != None:
-        #print("Result: " + str(board.attempt_move((x1,y1),(x2,y2))))
-        print("Result: " + str(board.__move_piece(playerMovment[0], playerMovment[1])))
+        game.attempt_move((x1,y1),(x2,y2))
+        #game.__move_piece((x1,y1),(x2,y2))
 
 def main_menu(screen, clock):
     while True:
@@ -100,22 +101,27 @@ def ChessGame(screen, clock):
                 sys.exit()
             elif event.type == p.KEYDOWN:
                 if event.key == p.K_ESCAPE:
-                    session = False
+                    pass
+
             elif event.type == p.MOUSEBUTTONDOWN and _ON_MENU:
+                pass
+            elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
                 location = p.mouse.get_pos()
                 col,row = location
                 col = col // _SQLEN
                 row = row // _SQLEN
+                
                 if selectedSquare == (row,col):
-                    selectedSquare.clear()
+                    selectedSquare = ()
                     playerClicks.clear()
                 else:
-                    selectedSquare = (row, col)
+                    selectedSquare = (col, row)
                     playerClicks.append(selectedSquare)
                     print(selectedSquare)
 
                 if len(playerClicks) == 2:
-                    movePiece(playerClicks)
+                    movePiece(game,playerClicks)
+                    drawGame(screen,game)
                     playerClicks.clear()
 
         drawGame(screen, game)
