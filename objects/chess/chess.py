@@ -1,8 +1,9 @@
 import copy
 from typing import List
-import objects.chess.pieces as pieces
-import objects.chess.dbms as db
-from objects.chess.enums import PieceType as Type, GameState as State
+import pieces as pieces
+import dbms as db
+from enums import PieceType as Type, GameState as State
+from itertools import permutations
 
 # A Chess instance is a game of chess
 # Game logic for new game:
@@ -180,11 +181,76 @@ class Chess:
                     return self.__check_for_check(to_move,move_to)
                 return False
         elif piece_to_move.get_type() == Type.BISHOP:
-            pass
+            dif_x = row1 - row2
+            dif_y = col1 - col2
+            #check that move_to is diag from to_move
+            if abs(dif_x) != abs(dif_y):
+                return False
+            dif_x = dif_x/abs(dif_x) * -1
+            dif_y = dif_y/abs(dif_y) * -1
+            checkrow = row1 + dif_x
+            checkcol = col1 + dif_y
+            #check for no pieces en route to row2,col2
+            while not self.__out_of_bounds((checkrow, checkcol)):
+                to_check = self._board[checkrow][checkcol]
+                if to_check:
+                    return False
+                checkrow += dif_x
+                checkcol += dif_y
+                if checkrow == row2 and checkcol == col2:
+                    break
+            #check row2,col2 for opp piece or free spot
+            if piece_to_remove and piece_to_remove.is_white() != piece_to_move.is_white():
+                return self.__check_for_check(to_move, move_to)
+            elif not piece_to_remove:
+                return self.__check_for_check(to_move, move_to)
+            return False
         elif piece_to_move.get_type() == Type.QUEEN:
-            pass
+            #check rook style moves
+            if row1 == row2:
+                for i in range(col2 > col1 and col2-1 or col1-1, col1 if col2 > col1 else col2, -1):
+                    if self._board[row1][i]:
+                        return False
+                if piece_to_remove and piece_to_remove.is_white() == piece_to_move.is_white():
+                    return False
+            elif col1 == col2:
+                for i in range(row2 > row1 and row2-1 or row1-1, row1 if row2 > row1 else row2, -1):
+                    if self._board[i][col1]:
+                        return False
+                if piece_to_remove and piece_to_remove.is_white() == piece_to_move.is_white():
+                    return False
+            #check bishop style moves
+            dif_x = row1 - row2
+            dif_y = col1 - col2
+            if abs(dif_x) != abs(dif_y):
+                return False
+            dif_x = dif_x/abs(dif_x) * -1
+            dif_y = dif_y/abs(dif_y) * -1
+            checkrow = row1 + dif_x
+            checkcol = col1 + dif_y
+            #check for no pieces en route to row2,col2
+            while not self.__out_of_bounds((checkrow, checkcol)):
+                to_check = self._board[checkrow][checkcol]
+                if to_check:
+                    return False
+                checkrow += dif_x
+                checkcol += dif_y
+                if checkrow == row2 and checkcol == col2:
+                    break
+            #check row2,col2 for opp piece or free spot
+            if piece_to_remove and piece_to_remove.is_white() != piece_to_move.is_white():
+                return self.__check_for_check(to_move, move_to)
+            elif not piece_to_remove:
+                return self.__check_for_check(to_move, move_to)
+            return False
         elif piece_to_move.get_type() == Type.KING:
-            pass
+            #add castle logic here
+            #non-castle move logic:
+            positions = ((-1,0),(1,0),(0,-1),(0,1))
+            for pos in positions:
+                if row1 + pos[0] == row2 and col1 + pos[1] == col2:
+                    return self.__check_for_check(to_move,move_to)
+            return False
 
     def __move_piece(self, to_move: tuple, move_to: tuple) -> State:
         # Assumes to_move can move to move_to
@@ -197,7 +263,7 @@ class Chess:
         self._board[row2][col2] = piece_to_move
         self._board[row1][col1] = None
         self._turnNum += 1
-        self.save_board()
+        self.save_board(move_to)
 
         # update the gamestate
         # check if one player is in check or checkmate
@@ -213,11 +279,6 @@ class Chess:
             self._game_state = State.BLACK_IN_CHECK
         else:
             self._game_state = State.NORMAL
-        
-        if self.get_turn():
-          self._turn = False
-        else:
-          self._turn = True
 
     def __check_for_check(self, to_move: tuple, move_to: tuple) -> bool:
         row1, col1 = to_move
@@ -258,178 +319,100 @@ class Chess:
                 break
 
         # check if pawn rules can check
+        to_check = None  
         if check_white:
             checkrow = row_of_king - 1
             checkcol = col_of_king - 1
-            if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and
-                 self._board[checkrow][checkcol].is_white() != check_white):
+            to_check = not self.__out_of_bounds((checkrow,checkcol)) and self._board[checkrow][checkcol] or None
+            if to_check:
+                if to_check.get_type() == Type.PAWN and to_check.is_white() != check_white:
                     return True
             checkcol += 2
-            if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and
-                 self._board[checkrow][checkcol].is_white() != check_white):
+            to_check = not self.__out_of_bounds((checkrow,checkcol)) and self._board[checkrow][checkcol] or None
+            if to_check:
+                if to_check.get_type() == Type.PAWN and to_check.is_white() != check_white:
                     return True
         else:
             checkrow = row_of_king + 1
-            checkcol = col_of_king - 1
-            if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and
-                 self._board[checkrow][checkcol].is_white() != check_white):
+            checkcol = col_of_king -1
+            to_check = not self.__out_of_bounds((checkrow,checkcol)) and self._board[checkrow][checkcol] or None
+            if to_check:
+                if to_check.get_type() == Type.PAWN and to_check.is_white() != check_white:
                     return True
             checkcol += 2
-            if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].get_type() == Type.PAWN and
-                 self._board[checkrow][checkcol].is_white() != check_white):
+            to_check = not self.__out_of_bounds((checkrow,checkcol)) and self._board[checkrow][checkcol] or None
+            if to_check:
+                if to_check.get_type() == Type.PAWN and to_check.is_white() != check_white:
                     return True
 
         # check if rook rules can check (Queen as well)
         # checking the rows
         for checkrow in reversed(range(0, row_of_king)):
-            if(self._board[checkrow][col_of_king] != None):
-                if(self._board[checkrow][col_of_king].is_white() == check_white):
+            to_check = self._board[checkrow][col_of_king]
+            if to_check:
+                if to_check.is_white() == check_white:
                     break
-                elif(self._board[checkrow][col_of_king].get_type() == Type.ROOK or
-                 self._board[checkrow][col_of_king].get_type() == Type.QUEEN):
+                elif to_check.get_type() == Type.ROOK or to_check.get_type() == Type.QUEEN:
                     return True
                 else:
                     break
-        for checkrow in range(row_of_king + 1, 8):
-            if(self._board[checkrow][col_of_king] != None):
-                if(self._board[checkrow][col_of_king].is_white() == check_white):
+        for checkrow in range(row_of_king+1, 8):
+            to_check = self._board[checkrow][col_of_king]
+            if to_check:
+                if to_check.is_white() == check_white:
                     break
-                elif(self._board[checkrow][col_of_king].get_type() == Type.ROOK or
-                 self._board[checkrow][col_of_king].get_type() == Type.QUEEN):
+                elif to_check.get_type() == Type.ROOK or to_check.get_type() == Type.QUEEN:
                     return True
                 else:
                     break
 
         # checking the columns
         for checkcol in reversed(range(0, col_of_king)):
-            if(self._board[row_of_king][checkcol] != None):
-                if(self._board[row_of_king][checkcol].is_white() == check_white):
+            to_check = self._board[row_of_king][checkcol]
+            if to_check:
+                if to_check.is_white() == check_white:
                     break
-                elif(self._board[row_of_king][checkcol].get_type() == Type.ROOK or
-                 self._board[row_of_king][checkcol].get_type() == Type.QUEEN):
+                elif to_check.get_type() == Type.ROOK or to_check.get_type() == Type.QUEEN:
                     return True
                 else:
                     break
-        for checkcol in range(col_of_king + 1, 8):
-            if(self._board[row_of_king][checkcol] != None):
-                if(self._board[row_of_king][checkcol].is_white() == check_white):
+        for checkcol in range(col_of_king+1, 8):
+            to_check = self._board[row_of_king][checkcol]
+            if to_check:
+                if to_check.is_white() == check_white:
                     break
-                elif(self._board[row_of_king][checkcol].get_type() == Type.ROOK or
-                 self._board[row_of_king][checkcol].get_type() == Type.QUEEN):
+                elif to_check.get_type() == Type.ROOK or to_check.get_type() == Type.QUEEN:
                     return True
                 else:
                     break
 
         # check if bishop rules can check (Queen as well)
-        checkrow = row_of_king - 1
-        checkcol = col_of_king + 1
-        while(checkrow >= 0 and checkcol < 8):
-            if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].is_white() == check_white):
-                    break
-                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or
-                 self._board[checkrow][checkcol].get_type() == Type.QUEEN):
-                    return True
-                else:
-                    break
-            checkrow -= 1
-            checkcol += 1
-
-        checkrow = row_of_king - 1
-        checkcol = col_of_king - 1
-        while(checkrow >= 0 and checkcol >= 0):
-            if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].is_white() == check_white):
-                    break
-                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or
-                 self._board[checkrow][checkcol].get_type() == Type.QUEEN):
-                    return True
-                else:
-                    break
-            checkrow -= 1
-            checkcol -= 1
-
-        checkrow = row_of_king + 1
-        checkcol = col_of_king + 1
-        while(checkrow < 8 and checkcol < 8):
-            if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].is_white() == check_white):
-                    break
-                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or
-                 self._board[checkrow][checkcol].get_type() == Type.QUEEN):
-                    return True
-                else:
-                    break
-            checkrow += 1
-            checkcol += 1
-
-        checkrow = row_of_king + 1
-        checkcol = col_of_king - 1
-        while(checkrow < 8 and checkcol >= 0):
-            if(self._board[checkrow][checkcol] != None):
-                if(self._board[checkrow][checkcol].is_white() == check_white):
-                    break
-                elif(self._board[checkrow][checkcol].get_type() == Type.BISHOP or
-                 self._board[checkrow][checkcol].get_type() == Type.QUEEN):
-                    return True
-                else:
-                    break
-            checkrow += 1
-            checkcol -= 1
+        positions = ((-1,1),(-1,-1),(1,-1),(1,1))
+        for position in positions:
+            checkrow = row_of_king + position[0]
+            checkcol = col_of_king + position[1]
+            while not self.__out_of_bounds((checkrow,checkcol)):
+                to_check = self._board[checkrow][checkcol]
+                if to_check:
+                    if to_check.is_white() == check_white:
+                        break
+                    if to_check.get_type() == Type.BISHOP or to_check.get_type() == Type.QUEEN:
+                        return True
+                    else:
+                        break
+                checkrow += position[0]
+                checkcol += position[1]
 
         # check if knight rules can check
-        if(row_of_king + 2 < 8 and col_of_king - 1 >= 0):
-            x = row_of_king + 2
-            y = col_of_king - 1
-            if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
-                    return True
-        if(row_of_king - 1 >= 0 and col_of_king + 2 < 8):
-            x = row_of_king - 1
-            y = col_of_king + 2
-            if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
-                    return True
-        if(row_of_king + 2 < 8 and col_of_king + 1 < 8):
-            x = row_of_king + 2
-            y = col_of_king + 1
-            if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
-                    return True
-        if(row_of_king + 1 < 8 and col_of_king + 2 < 8):
-            x = row_of_king + 1
-            y = col_of_king + 2
-            if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
-                    return True
-        if(row_of_king - 2 >= 0 and col_of_king - 1 >= 0):
-            x = row_of_king - 2
-            y = col_of_king - 1
-            if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
-                    return True
-        if(row_of_king - 1 >= 0 and col_of_king - 2 >= 0):
-            x = row_of_king - 1
-            y = col_of_king - 2
-            if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
-                    return True
-        if(row_of_king - 2 >= 0 and col_of_king + 1 < 8):
-            x = row_of_king - 2
-            y = col_of_king + 1
-            if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
-                    return True
-        if(row_of_king + 1 < 8 and col_of_king - 2 >= 0):
-            x = row_of_king + 1
-            y = col_of_king - 2
-            if(self._board[x][y] != None):
-                if(self._board[x][y].get_type() == Type.KNIGHT and self._board[x][y].is_white() != check_white):
-                    return True
+        positions = [x for x in permutations((-2,2,-1,1),2) if abs(x[0]) != abs(x[1])]
+        for position in positions:
+            x = row_of_king + position[0]
+            y = col_of_king + position[1]
+            to_check = not self.__out_of_bounds((x,y)) and self._board[x][y] or None
+            if not to_check:
+                continue
+            if to_check.get_type() == Type.KING and to_check.is_white() != check_white:
+                return True
 
         return False
 
@@ -437,21 +420,22 @@ class Chess:
         pass
 
     def save_board(self) -> bool:
-        for row in range(8):
-            for col in range(8):
-                if self._board[row][col] != None:
-                    if (db.saveState(self._board[row][col].__str__(), self._board[row][col].is_white(), self._board[row], self._board[col], self._turn, self._turnNum) == False):
-                        print ("Board could not be saved successfully")
-                        return False
-        print ("Board saved successfully")
-        return True
+        #save state of board
+        #enters a row into database for each piece on the board at this turnNum
+        for row_num, row in enumerate(self._board):
+            for col_num, col in enumerate(row):
+                if not col:
+                    continue
+                if not db.saveState(str(col), col.is_white(), row_num, col_num, self._turn, self._turnNum):
+                    print("unable to save ", col, "@ ", row_num, col_num)
+        print("Finished saving current board state")
 
-    def load_board(self, turnNumber = None) -> List[List[pieces.Piece]]:
-    #Loads previous state of the board. Takes in one parameter, which is the turn number the player wishes to return to. Default is previous round.
-        if turnNumber == None:
-          turnNumber = self._turnNum - 1
+    def load_board(self, turnNumber = -1) -> List[List[pieces.Piece]]:
+        #Loads previous state of the board. Takes in one parameter, which is the turn number the player wishes to return to. Default is previous round.
+        #Cant use self. in default arg, so default arg is done below
+        turnNumber = turnNumber if turnNumber > -1 else self._turnNum - 1
         dataList = db.loadState(turnNumber)
-        tempBoard = [[None for i in range(8)] for i in range(8)]
+        tempBoard = [[None for _ in range(8)] for _ in range(8)]
         for dataSet in dataList:
             pieceName, col, row, column = dataSet
             if pieceName == "O":

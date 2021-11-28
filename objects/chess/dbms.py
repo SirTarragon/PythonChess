@@ -1,4 +1,5 @@
 import sqlite3
+from typing import List
 
 #Create connection and cursor
 
@@ -25,15 +26,15 @@ cursor.close()
 connection.close()
 
 #Returns data to load the board at a previous turn number
-def loadState(turnNumber) -> list(tuple()):
+def loadState(turnNumber) -> List[tuple]:
 	connection = sqlite3.connect('pychess.db')
 	cursor = connection.cursor()
 
 	query = """
 		SELECT piece, color, row, column
 		FROM BoardState
-		WHERE turnNum = turnNumber
-	"""
+		WHERE turnNum = """ + str(turnNumber)
+
 	cursor.execute(query)
 
 	result = cursor.fetchall()
@@ -44,15 +45,13 @@ def loadState(turnNumber) -> list(tuple()):
 	return result
 
 #Stores board state into database
-def saveState(pc, c, r, col, t, tn) -> bool:
+def saveState(*args) -> bool:
 	connection = sqlite3.connect('pychess.db')
 	cursor = connection.cursor()
-
 	query = """
 		INSERT INTO BoardState(piece, color, row, col, turn, turnNum)
 		VALUES (?,?,?,?,?,?)
 		"""
-	args = (pc, c, r, col, t, tn)
 
 	try:
 		cursor.execute(query, args)
