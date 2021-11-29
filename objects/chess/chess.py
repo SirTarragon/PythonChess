@@ -1,9 +1,18 @@
 import copy
 import math
 from typing import List
-from . import pieces as pieces
-from . import dbms as db
-from .enums import PieceType as Type, GameState as State
+try:
+  import pieces as pieces
+except ModuleNotFoundError:
+  from . import pieces as pieces
+try:
+  import dbms as db
+except ModuleNotFoundError:
+  from . import dbms as db
+try:
+  from enums import PieceType as Type, GameState as State
+except ModuleNotFoundError:
+  from .enums import PieceType as Type, GameState as State
 from itertools import permutations
 
 # A Chess instance is a game of chess

@@ -1,5 +1,8 @@
 from typing import List
-from .enums import PieceType as Type
+try:
+  from enums import PieceType as Type
+except ModuleNotFoundError:
+  from .enums import PieceType as Type
 #Translated pretty literally from the java files
 #some pieces need to log whether/how much they moved
 #But no pieces needed to track their own location, since a piece can be instantiated without a board
