@@ -1,4 +1,4 @@
-from objects.chess import chess as Chess
+from objects.chess import chess
 import pygame as p
 import sys
 
@@ -47,6 +47,9 @@ def drawScreen(screen):
         else:
             drawWhite = True
 
+def highlightMovement(screen, board, selectedSquare):
+    pass
+
 def drawPieces(screen, board):
     for row in range(_DIMENSIONS):
         for col in range(_DIMENSIONS):
@@ -86,7 +89,7 @@ def ChessGame(screen, clock):
     loadImages()
     p.display.set_caption("Chess")
     p.display.set_icon(_IMAGES['brook'])
-    game = Chess()  # need to initialize the game by calling the class
+    game = chess.Chess()  # need to initialize the game by calling the class
     session = True
     _IN_GAME = True
 

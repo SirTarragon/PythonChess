@@ -1,8 +1,9 @@
 import copy
+import math
 from typing import List
-import pieces as pieces
-import dbms as db
-from enums import PieceType as Type, GameState as State
+from . import pieces as pieces
+from . import dbms as db
+from .enums import PieceType as Type, GameState as State
 from itertools import permutations
 
 # A Chess instance is a game of chess
@@ -188,15 +189,15 @@ class Chess:
                 return False
             dif_x = dif_x/abs(dif_x) * -1
             dif_y = dif_y/abs(dif_y) * -1
-            checkrow = row1 + dif_x
-            checkcol = col1 + dif_y
+            checkrow = row1 + int(math.floor(dif_x))
+            checkcol = col1 + int(math.floor(dif_y))
             #check for no pieces en route to row2,col2
             while not self.__out_of_bounds((checkrow, checkcol)):
                 to_check = self._board[checkrow][checkcol]
                 if to_check:
                     return False
-                checkrow += dif_x
-                checkcol += dif_y
+                checkrow += int(math.floor(dif_x))
+                checkcol += int(math.floor(dif_y))
                 if checkrow == row2 and checkcol == col2:
                     break
             #check row2,col2 for opp piece or free spot
@@ -226,15 +227,15 @@ class Chess:
                 return False
             dif_x = dif_x/abs(dif_x) * -1
             dif_y = dif_y/abs(dif_y) * -1
-            checkrow = row1 + dif_x
-            checkcol = col1 + dif_y
+            checkrow = row1 + int(math.floor(dif_x))
+            checkcol = col1 + int(math.floor(dif_y))
             #check for no pieces en route to row2,col2
             while not self.__out_of_bounds((checkrow, checkcol)):
                 to_check = self._board[checkrow][checkcol]
                 if to_check:
                     return False
-                checkrow += dif_x
-                checkcol += dif_y
+                checkrow += int(math.floor(dif_x))
+                checkcol += int(math.floor(dif_y))
                 if checkrow == row2 and checkcol == col2:
                     break
             #check row2,col2 for opp piece or free spot
