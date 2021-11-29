@@ -155,9 +155,11 @@ class Chess:
             if not Chess.__out_of_bounds((direction,)) and not self._board[row2][col2]:
                 # attempt to en passant
                 # check that move to is empty
-                # then check that adjacent square isa  pawn
+                # then check that adjacent square is a pawn
                 adjacent_pawn = self._board[row1][col2]
                 if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN:
+                  samecolor = adjacent_pawn.is_white() != piece_to_move.is_white()
+                  if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1) and samecolor:
                     return self.__check_for_check(to_move, move_to)
             return False
         elif piece_to_move.get_type() == Type.ROOK:
@@ -262,7 +264,7 @@ class Chess:
                     return self.__check_for_check(to_move,move_to)
             return False
 
-    def __move_piece(self, to_move: tuple, move_to: tuple) -> State:
+    def __move_piece(self, to_move: tuple, move_to: tuple):
         # Assumes to_move can move to move_to
         # Completes the move with no data validation
         # Updates the gamestate after completing the move
@@ -270,6 +272,9 @@ class Chess:
         row1, col1 = to_move
         row2, col2 = move_to
         piece_to_move = self._board[row1][col1]
+        piece_type = piece_to_move.get_type()
+        if piece_type == Type.PAWN or piece_type == Type.ROOK:
+          piece_to_move.move()
         self._board[row2][col2] = piece_to_move
         self._board[row1][col1] = None
         self._turnNum += 1

@@ -27,11 +27,14 @@ def loadImages():
         _IMAGES[piece] = p.transform.scale(p.image.load("resources/chess/" + piece + ".png"), (_SQLEN, _SQLEN))
 
 # need to draw the game
-def drawGame(screen, game):
-    drawScreen(screen)
-    drawPieces(screen, game.get_board())
+def drawChessGame(screen, game, playerMovement: list):
+    board = game.get_board()
+    drawChessScreen(screen)
+    if len(playerMovement) == 1:
+      highlightChessMovement(screen, game, playerMovement[0])
+    drawChessPieces(screen, board)
 
-def drawScreen(screen):
+def drawChessScreen(screen):
     colors = [p.Color("white"), p.Color("gray")]
     drawWhite = True
     for r in range(_DIMENSIONS):
@@ -47,10 +50,16 @@ def drawScreen(screen):
         else:
             drawWhite = True
 
-def highlightMovement(screen, board, selectedSquare):
-    pass
+def highlightChessMovement(screen, game, selectedSquare):
+    board = game.get_board()
+    x,y = selectedSquare
+    if board[x][y] != None:
+        for r in range(_DIMENSIONS):
+          for c in range(_DIMENSIONS):
+            if r==x and c==y:
+              p.draw.rect(screen, p.Color("red"), [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
 
-def drawPieces(screen, board):
+def drawChessPieces(screen, board):
     for row in range(_DIMENSIONS):
         for col in range(_DIMENSIONS):
             if board[row][col] != None: # always check if there's something there
@@ -117,15 +126,21 @@ def ChessGame(screen, clock):
                 else:
                     selectedSquare = (row, col)
                     playerClicks.append(selectedSquare)
-                    print(selectedSquare)
 
-                if len(playerClicks) == 2:
-                    movePiece(game,playerClicks)
-                    drawGame(screen,game)
+                if len(playerClicks) == 1:
+                  tx,ty = playerClicks[0]
+                  if game.get_board()[tx][ty] == None:
                     selectedSquare = ()
                     playerClicks.clear()
 
-        drawGame(screen, game)
+                print(selectedSquare)
+
+                if len(playerClicks) == 2:
+                    movePiece(game,playerClicks)
+                    selectedSquare = ()
+                    playerClicks.clear()
+
+        drawChessGame(screen, game, playerClicks)
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
 
