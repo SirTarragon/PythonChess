@@ -30,8 +30,12 @@ def loadImages():
 def drawChessGame(screen, game, playerMovement: list):
     board = game.get_board()
     drawChessScreen(screen)
-    if len(playerMovement) == 1:
+    if len(playerMovement) > 0:
       highlightChessMovement(screen, game, playerMovement[0])
+      validMoves = game.valid_moves(playerMovement[0])
+      if validMoves:
+        for validMove in game.valid_moves(playerMovement[0]):
+          highlightChessMovement(screen, game, validMove, True)
     drawChessPieces(screen, board)
 
 def drawChessScreen(screen):
@@ -50,10 +54,10 @@ def drawChessScreen(screen):
         else:
             drawWhite = True
 
-def highlightChessMovement(screen, game, selectedSquare):
+def highlightChessMovement(screen, game, selectedSquare, ignore: bool = False):
     board = game.get_board()
     x,y = selectedSquare
-    if board[x][y] != None:
+    if board[x][y] != None or ignore:
         for r in range(_DIMENSIONS):
           for c in range(_DIMENSIONS):
             if r==x and c==y:

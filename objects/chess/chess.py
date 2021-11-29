@@ -436,7 +436,10 @@ class Chess:
         pass
 
     def save_board(self) -> bool:
-        #save state of board
+        """()-> bool
+        save current state of the board to the database
+        returns bool depending on success
+        """
         #enters a row into database for each piece on the board at this turnNum
         for row_num, row in enumerate(self._board):
             for col_num, col in enumerate(row):
@@ -444,10 +447,15 @@ class Chess:
                     continue
                 if not db.saveState(str(col), col.is_white(), row_num, col_num, self._turn, self._turnNum):
                     print("unable to save ", col, "@ ", row_num, col_num)
+                    return False
         print("Finished saving current board state")
+        return True
 
     def load_board(self, turnNumber = -1) -> List[List[pieces.Piece]]:
-        #Loads previous state of the board. Takes in one parameter, which is the turn number the player wishes to return to. Default is previous round.
+        """()-> List[List[pieces.Piece]]
+        returns a deepcopy of the present board
+        Loads previous state of the board. Takes in one parameter, which is the turn number the player wishes to return to. Default is previous round.
+        """
         #Cant use self. in default arg, so default arg is done below
         turnNumber = turnNumber if turnNumber > -1 else self._turnNum - 1
         dataList = db.loadState(turnNumber)
