@@ -447,9 +447,7 @@ class Chess:
                     continue
                 if not db.saveState(str(col), col.is_white(), row_num, col_num, self._turn, self._turnNum):
                     print("unable to save ", col, "@ ", row_num, col_num)
-                    return False
         print("Finished saving current board state")
-        return True
 
     def load_board(self, turnNumber = -1) -> List[List[pieces.Piece]]:
         """()-> List[List[pieces.Piece]]
