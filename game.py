@@ -1,4 +1,4 @@
-from objects.chess.chess import Chess
+from objects.chess import chess as Chess
 import pygame as p
 import sys
 
