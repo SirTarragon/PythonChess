@@ -7,7 +7,7 @@ import sys
 # need to know the length of the squares and something global to hold the images
 # and probably a set FPS for drawing
 
-_WIDTH = _HEIGHT = 516
+_WIDTH = _HEIGHT = 512
 _DIMENSIONS = 8
 _SQLEN = _HEIGHT // _DIMENSIONS
 _IMAGES = {}    # dictionary/hashmap. For quick image lookup
@@ -29,12 +29,11 @@ def loadImages():
         _IMAGES[piece] = p.transform.scale(p.image.load("resources/chess/" + piece + ".png"), (_SQLEN, _SQLEN))
 
 # need to draw the game
-def drawChessGame(screen, game, playerMovement: list):
+def drawChessGame(screen, game, playerMovement: list, validMoves: list = None):
     board = game.get_board()
     drawChessScreen(screen)
     if len(playerMovement) > 0:
       highlightChessMovement(screen, game, playerMovement[0])
-      validMoves = game.valid_moves(playerMovement[0])
       if validMoves:
         for validMove in game.valid_moves(playerMovement[0]):
           highlightChessMovement(screen, game, validMove, True)
@@ -117,6 +116,7 @@ def ChessGame(screen, clock):
 
     selectedSquare = ()     # need something to hold the selected spot on the GUI
     playerClicks = []       # need to keep track of the player clicks
+    validMoves = []
 
     # game loop
     while session:
@@ -136,7 +136,10 @@ def ChessGame(screen, clock):
                 
                     if selectedSquare == (row, col):
                         selectedSquare = ()
-                        playerClicks.clear()
+                        if playerClicks:        # to prevent any heinous bugs due to empty list
+                            playerClicks.clear()
+                        if validMoves:
+                            validMoves.clear()
                     else:
                         selectedSquare = (row, col)
                         playerClicks.append(selectedSquare)
@@ -145,7 +148,12 @@ def ChessGame(screen, clock):
                         tx,ty = playerClicks[0]
                     if game.get_board()[tx][ty] == None:
                         selectedSquare = ()
-                        playerClicks.clear()
+                        if playerClicks:
+                            playerClicks.clear()
+                        if validMoves:
+                            validMoves.clear()
+                    else:
+                        validMoves = game.valid_moves(playerClicks[0])
 
                     print(f"Selected: {selectedSquare}")
 
@@ -153,8 +161,9 @@ def ChessGame(screen, clock):
                         movePiece(game,playerClicks)
                         selectedSquare = ()
                         playerClicks.clear()
+                        #validMoves.clear()
 
-        drawChessGame(screen, game, playerClicks)
+        drawChessGame(screen, game, playerClicks, validMoves)
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
 
