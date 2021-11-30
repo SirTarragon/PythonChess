@@ -1,5 +1,6 @@
 from objects import chess
 import pygame as p
+import client as cl
 import sys
 
 # knowing the width and height (pixel count/area of screen)
