@@ -17,10 +17,13 @@ _MAXFPS = 30
 _ON_MENU = False
 _IN_GAME = False
 
-_CHESSBOARD_COLORS = [p.Color("white"), p.Color("gray")]
+_CHESSBOARD_COLORS = [p.Color("white"), p.Color("gray"), p.Color("red")]
 
-# need to load the images
-def loadImages():
+def loadChessImages():
+    """ ()-> None
+    this loads the image files correlated to chess. These images need to be stored in the
+    resources/chess/ directory with the appropriately listed names.
+    """
     pieces = [
         'bbishop', 'bking', 'bknight', 'bpawn', 'bqueen', 'brook',
         'wbishop', 'wking', 'wknight', 'wpawn', 'wqueen', 'wrook'
@@ -28,8 +31,10 @@ def loadImages():
     for piece in pieces:
         _IMAGES[piece] = p.transform.scale(p.image.load("resources/chess/" + piece + ".png"), (_SQLEN, _SQLEN))
 
-# need to draw the game
 def drawChessGame(screen, game, playerMovement: list, validMoves: list = None):
+    """ ()-> None
+    general function to handle drawing for the ChessGame
+    """
     board = game.get_board()
     drawChessScreen(screen)
     if len(playerMovement) > 0:
@@ -40,6 +45,10 @@ def drawChessGame(screen, game, playerMovement: list, validMoves: list = None):
     drawChessPieces(screen, board)
 
 def drawChessScreen(screen):
+    """ ()-> None
+    draws onto the screen the background of the chessboard with proper
+    alternating colors
+    """
     drawWhite = True
     for r in range(_DIMENSIONS):
         for c in range(_DIMENSIONS):
@@ -54,18 +63,24 @@ def drawChessScreen(screen):
             drawWhite = True
 
 def highlightChessMovement(screen, game, selectedSquare, ignore: bool = False):
+    """ ()-> None
+    draws onto the screen based on the ChessGame the selected piece and
+    any other squares the way.
+    """
     board = game.get_board()
     x,y = selectedSquare
     if board[x][y] != None or ignore:
       drawWhite = True
       for r in range(_DIMENSIONS):
-        for c in range(_DIMENSIONS):      
+        for c in range(_DIMENSIONS):
           if r==x and c==y:
-            p.draw.circle(screen, p.Color("red"), (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2)
-            if drawWhite:
+            # red circle to highlight possible moves/selected piece
+            p.draw.circle(screen, _CHESSBOARD_COLORS[3], (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2)
+            if drawWhite: # taken from drawing the chessboard, decides the color inner circle color
               color = _CHESSBOARD_COLORS[0]
             else:
               color = _CHESSBOARD_COLORS[1]
+            # inner circle should match background square
             p.draw.circle(screen, color, (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2.3)
           drawWhite = not drawWhite
         if r % 2 == 0:
@@ -73,7 +88,17 @@ def highlightChessMovement(screen, game, selectedSquare, ignore: bool = False):
         else:
           drawWhite = True
 
+def drawArrowPointers(screen, arrowsList: list):
+    """ ()-> None
+    draws arrow pointers for the player visualizing their strategy
+    """
+    pass
+
 def drawChessPieces(screen, board):
+    """ ()-> None
+    this function draws to the screen the pieces present on the board found by
+    the Chess() class
+    """
     for row in range(_DIMENSIONS):
         for col in range(_DIMENSIONS):
             if board[row][col] != None: # always check if there's something there
@@ -91,31 +116,39 @@ def drawChessPieces(screen, board):
                 # draw to the screen the piece, box it in as a rectangle
                 screen.blit(_IMAGES[lookup], p.Rect(col*_SQLEN, row*_SQLEN, _SQLEN, _SQLEN))
 
-def movePiece(game, playerMovment):
+def movePiece(game, playerMovement):
     board = game.get_board()
-    x1,y1 = playerMovment[0]
-    x2,y2 = playerMovment[1]
+    x1,y1 = playerMovement[0]
+    x2,y2 = playerMovement[1]
 
     if board[x1][y1] != None:
         game.attempt_move((x1,y1),(x2,y2))
         #game.__move_piece((x1,y1),(x2,y2))
 
 def IngameMenu(screen, clock):
-  pass
+    """ ()-> None
+    this function draws the in-game menu system to interact with
+    """
+    pass
 
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
 def ChessGame(screen, clock):
+    """ ()-> None
+    this is the core process for the ChessGame
+    """
     screen.fill(p.Color("white"))
-    loadImages()
+    loadChessImages()
     p.display.set_caption("Chess")
     p.display.set_icon(_IMAGES['brook'])
     game = chess.Chess()  # need to initialize the game by calling the class
     session = True
+    arrowsPointFlag = False
     _IN_GAME = True
 
     selectedSquare = ()     # need something to hold the selected spot on the GUI
-    playerClicks = []       # need to keep track of the player clicks
+    moveClicks = []       # need to keep track of the player clicks
+    arrowClicks = []      # need to keep track of all of the arrows
     validMoves = []
 
     # game loop
@@ -126,44 +159,68 @@ def ChessGame(screen, clock):
                 sys.exit()
             elif event.type == p.KEYDOWN:
                 if event.key == p.K_ESCAPE:
-                    pass
+#                    _IN_GAME = not _IN_GAME
+                    _ON_MENU = not _ON_MENU
+                elif event.key == p.K_LALT or event.key == p.R_ALT:
+                    if arrowClicks:
+                        arrowClicks.clear()
+                        arrowsPointFlag = False
+                elif event.key == p.K_RCTRL or event.key == p.K_LCTRL:
+                    if arrowClicks and arrowClicks > 2: # pop the arrow
+                        arrowClicks.pop(-2)
             elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
                 if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
                     location = p.mouse.get_pos()
                     col,row = location
                     col = col // _SQLEN
                     row = row // _SQLEN
-                
+
                     if selectedSquare == (row, col):
                         selectedSquare = ()
-                        if playerClicks:        # to prevent any heinous bugs due to empty list
-                            playerClicks.clear()
+                        if moveClicks:        # to prevent any heinous bugs due to empty list
+                            moveClicks.clear()
+                        if arrowClicks:
+                            arrowClicks.pop(-1)
                         if validMoves:
                             validMoves.clear()
                     else:
                         selectedSquare = (row, col)
-                        playerClicks.append(selectedSquare)
+                        if event.button == 1:
+                            moveClicks.append(selectedSquare)
+                        elif event.button == 3:
+                            arrowClicks.append(selectedSquare)
 
-                    if len(playerClicks) == 1:
-                        tx,ty = playerClicks[0]
+
+                    if len(moveClicks) == 1:
+                        tx,ty = moveClicks[0]
                     if game.get_board()[tx][ty] == None:
                         selectedSquare = ()
-                        if playerClicks:
-                            playerClicks.clear()
+                        if moveClicks:
+                            moveClicks.clear()
                         if validMoves:
                             validMoves.clear()
-                    else:
-                        validMoves = game.valid_moves(playerClicks[0])
+#                    else:
+#                        validMoves = game.valid_moves(moveClicks[0])
 
-                    print(f"Selected: {selectedSquare}")
+                    print(f"Selected for movement: {selectedSquare}")
 
-                    if len(playerClicks) == 2:
-                        movePiece(game,playerClicks)
+                    if len(moveClicks) == 2:
+                        movePiece(game,moveClicks)
                         selectedSquare = ()
-                        playerClicks.clear()
-                        #validMoves.clear()
+                        moveClicks.clear()
+                        if validMoves:
+                            validMoves.clear()
 
-        drawChessGame(screen, game, playerClicks, validMoves)
+                    if len(arrowClicks) >= 2 and not arrowsPointFlag:
+                        arrowsPointFlag = True
+
+
+        if _IN_GAME:
+            drawChessGame(screen, game, moveClicks, validMoves)
+            if arrowsPointFlag:
+                drawArrowPointers(screen, arrowClicks)
+#        elif _ON_MENU:
+#            IngameMenu(screen, clock)
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
 
