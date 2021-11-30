@@ -17,6 +17,8 @@ _MAXFPS = 30
 _ON_MENU = False
 _IN_GAME = False
 
+_CHESSBOARD_COLORS = [p.Color("white"), p.Color("gray")]
+
 # need to load the images
 def loadImages():
     pieces = [
@@ -39,16 +41,14 @@ def drawChessGame(screen, game, playerMovement: list):
     drawChessPieces(screen, board)
 
 def drawChessScreen(screen):
-    colors = [p.Color("white"), p.Color("gray")]
     drawWhite = True
     for r in range(_DIMENSIONS):
         for c in range(_DIMENSIONS):
             if drawWhite:
-                p.draw.rect(screen, colors[0], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
-                drawWhite = False
+                p.draw.rect(screen, _CHESSBOARD_COLORS[0], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
             else:
-                p.draw.rect(screen, colors[1], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
-                drawWhite = True
+                p.draw.rect(screen, _CHESSBOARD_COLORS[1], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
+            drawWhite = not drawWhite
         if r % 2 == 0:
             drawWhite = False
         else:
@@ -58,10 +58,21 @@ def highlightChessMovement(screen, game, selectedSquare, ignore: bool = False):
     board = game.get_board()
     x,y = selectedSquare
     if board[x][y] != None or ignore:
-        for r in range(_DIMENSIONS):
-          for c in range(_DIMENSIONS):
-            if r==x and c==y:
-              p.draw.rect(screen, p.Color("red"), [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
+      drawWhite = True
+      for r in range(_DIMENSIONS):
+        for c in range(_DIMENSIONS):      
+          if r==x and c==y:
+            p.draw.circle(screen, p.Color("red"), (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2)
+            if drawWhite:
+              color = _CHESSBOARD_COLORS[0]
+            else:
+              color = _CHESSBOARD_COLORS[1]
+            p.draw.circle(screen, color, (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2.3)
+          drawWhite = not drawWhite
+        if r % 2 == 0:
+          drawWhite = False
+        else:
+          drawWhite = True
 
 def drawChessPieces(screen, board):
     for row in range(_DIMENSIONS):
@@ -90,10 +101,8 @@ def movePiece(game, playerMovment):
         game.attempt_move((x1,y1),(x2,y2))
         #game.__move_piece((x1,y1),(x2,y2))
 
-def main_menu(screen, clock):
-    while True:
-        screen.fill((0,0,0))
-        draw_text('')
+def IngameMenu(screen, clock):
+  pass
 
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
@@ -119,34 +128,40 @@ def ChessGame(screen, clock):
                 if event.key == p.K_ESCAPE:
                     pass
             elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
-                location = p.mouse.get_pos()
-                col,row = location
-                col = col // _SQLEN
-                row = row // _SQLEN
+                if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
+                    location = p.mouse.get_pos()
+                    col,row = location
+                    col = col // _SQLEN
+                    row = row // _SQLEN
                 
-                if selectedSquare == (row,col):
-                    selectedSquare = ()
-                    playerClicks.clear()
-                else:
-                    selectedSquare = (row, col)
-                    playerClicks.append(selectedSquare)
+                    if selectedSquare == (row, col):
+                        selectedSquare = ()
+                        playerClicks.clear()
+                    else:
+                        selectedSquare = (row, col)
+                        playerClicks.append(selectedSquare)
 
-                if len(playerClicks) == 1:
-                  tx,ty = playerClicks[0]
-                  if game.get_board()[tx][ty] == None:
-                    selectedSquare = ()
-                    playerClicks.clear()
+                    if len(playerClicks) == 1:
+                        tx,ty = playerClicks[0]
+                    if game.get_board()[tx][ty] == None:
+                        selectedSquare = ()
+                        playerClicks.clear()
 
-                print(selectedSquare)
+                    print(f"Selected: {selectedSquare}")
 
-                if len(playerClicks) == 2:
-                    movePiece(game,playerClicks)
-                    selectedSquare = ()
-                    playerClicks.clear()
+                    if len(playerClicks) == 2:
+                        movePiece(game,playerClicks)
+                        selectedSquare = ()
+                        playerClicks.clear()
 
         drawChessGame(screen, game, playerClicks)
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
+
+def MainMenu(screen, clock):
+    while True:
+        screen.fill((0,0,0))
+        draw_text('')
 
 if __name__ == "__main__":
     p.init()        # initialize pygame
