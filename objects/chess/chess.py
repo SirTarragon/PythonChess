@@ -34,6 +34,7 @@ class Chess:
         self._turn = True  # True indicates whether or not it's white's turn
         self._game_state = State.NORMAL
         self._turnNum = 0
+        self._enpassant = [False, False]
         self.save_board()
 
     def attempt_move(self, to_move: tuple, move_to: tuple) -> State:
@@ -142,6 +143,7 @@ class Chess:
                 if row2 == direction and col2 == col1 and not self._board[row2][col2]:
                     # attempt to move an unmoved pawn 2 spaces to an empty space
                     # modify board
+                    self._enpassant[1] = True
                     return self.__check_for_check(to_move, move_to)
             direction = piece_to_move.is_white() and row1-1 or row1+1
             if not Chess.__out_of_bounds((direction,)) and not self._board[row2][col2]:
@@ -157,7 +159,7 @@ class Chess:
                 # check that move to is empty
                 # then check that adjacent square is a pawn
                 adjacent_pawn = self._board[row1][col2]
-                if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN:
+                if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN and self._enpassant[0]:
                   samecolor = adjacent_pawn.is_white() != piece_to_move.is_white()
                   if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1) and samecolor:
                     return self.__check_for_check(to_move, move_to)
@@ -274,12 +276,28 @@ class Chess:
         piece_to_move = self._board[row1][col1]
         piece_type = piece_to_move.get_type()
         if piece_type == Type.PAWN or piece_type == Type.ROOK:
-          piece_to_move.move()
+            piece_to_move.move()
+
         self._board[row2][col2] = piece_to_move
         self._board[row1][col1] = None
         self._turnNum += 1
         self.save_board()
         self._turn = not self._turn
+        
+        if self._enpassant[0] == True and self._enpassant[1] == False:
+            print("Enpassant is possible this turn.")
+            direction = piece_to_move.is_white() and row1-1 or row1+1
+            adjacent_pawn = self._board[row1][col2]
+            if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN and self._enpassant[0]:
+                samecolor = adjacent_pawn.is_white() != piece_to_move.is_white()
+                if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1) and samecolor:
+                    self._board[row1][col2] = None
+            self._enpassant[0] = False
+            self._enpassant[1] = False
+        elif self._enpassant[0] == False and self._enpassant[1] == True:
+            print("Enpassant is possible next turn.")
+            self._enpassant[0] = True
+            self._enpassant[1] = False
 
         # update the gamestate
         # check if one player is in check or checkmate
