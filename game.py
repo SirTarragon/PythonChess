@@ -35,7 +35,7 @@ def drawChessGame(screen, game, playerMovement: list, validMoves: list = None):
     if len(playerMovement) > 0:
       highlightChessMovement(screen, game, playerMovement[0])
       if validMoves:
-        for validMove in game.valid_moves(playerMovement[0]):
+        for validMove in validMoves:
           highlightChessMovement(screen, game, validMove, True)
     drawChessPieces(screen, board)
 
