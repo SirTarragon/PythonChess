@@ -87,6 +87,9 @@ class Chess:
         row, col = to_move
         piece_to_move = self._board[row][col]
 
+        if self._enpassant[0]:
+          print("Enpassant is possible this turn.")
+
         if piece_to_move.get_type() == Type.PAWN:
             pass
         elif piece_to_move.get_type() == Type.ROOK:
@@ -284,8 +287,7 @@ class Chess:
         self.save_board()
         self._turn = not self._turn
         
-        if self._enpassant[0] == True and self._enpassant[1] == False:
-            print("Enpassant is possible this turn.")
+        if self._enpassant[0] == True:
             direction = piece_to_move.is_white() and row1-1 or row1+1
             adjacent_pawn = self._board[row1][col2]
             if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN and self._enpassant[0]:
@@ -293,10 +295,11 @@ class Chess:
                 if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1) and samecolor:
                     self._board[row1][col2] = None
             self._enpassant[0] = False
-            self._enpassant[1] = False
         elif self._enpassant[0] == False and self._enpassant[1] == True:
             print("Enpassant is possible next turn.")
             self._enpassant[0] = True
+            self._enpassant[1] = False
+        else:
             self._enpassant[1] = False
 
         # update the gamestate
