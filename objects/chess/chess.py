@@ -286,8 +286,8 @@ class Chess:
         self._turnNum += 1
         self.save_board()
         self._turn = not self._turn
-        
-        if self._enpassant[0] == True:
+
+        if self._enpassant[0] == True and piece_type == Type.PAWN:
             direction = piece_to_move.is_white() and row1-1 or row1+1
             adjacent_pawn = self._board[row1][col2]
             if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN and self._enpassant[0]:
@@ -356,7 +356,7 @@ class Chess:
                 break
 
         # check if pawn rules can check
-        to_check = None  
+        to_check = None
         if check_white:
             checkrow = row_of_king - 1
             checkcol = col_of_king - 1

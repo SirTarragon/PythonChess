@@ -19,6 +19,7 @@ _ON_MENU = False
 _IN_GAME = False
 
 _CHESSBOARD_COLORS = [p.Color("white"), p.Color("gray"), p.Color("red")]
+_DROUGHT_COLORS = [p.Color("red"), p.Color("gray"), p.Color("white")]
 
 def loadChessImages():
     """ ()-> None
@@ -37,33 +38,33 @@ def drawChessGame(screen, game, playerMovement: list, validMoves: list = None):
     general function to handle drawing for the ChessGame
     """
     board = game.get_board()
-    drawChessScreen(screen)
+    colors = _CHESSBOARD_COLORS
+    drawCheckeredBoard(screen,colors)
     if len(playerMovement) > 0:
-      highlightChessMovement(screen, game, playerMovement[0])
+      highlightPieceMovement(screen, game, colors, playerMovement[0])
       if validMoves:
         for validMove in validMoves:
-          highlightChessMovement(screen, game, validMove, True)
+          highlightPieceMovement(screen, game, colors, validMove, True)
     drawChessPieces(screen, board)
 
-def drawChessScreen(screen):
+def drawCheckeredBoard(screen, colors: list):
     """ ()-> None
-    draws onto the screen the background of the chessboard with proper
-    alternating colors
+    draws onto the screen the background of the board with alternating colors
     """
-    drawWhite = True
+    alter = True    # offsets the next row and changes between one color and the next
     for r in range(_DIMENSIONS):
         for c in range(_DIMENSIONS):
-            if drawWhite:
-                p.draw.rect(screen, _CHESSBOARD_COLORS[0], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
+            if alter:
+                p.draw.rect(screen, colors[0], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
             else:
-                p.draw.rect(screen, _CHESSBOARD_COLORS[1], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
-            drawWhite = not drawWhite
+                p.draw.rect(screen, colors[1], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN])
+            alter = not alter
         if r % 2 == 0:
-            drawWhite = False
+            alter = False
         else:
-            drawWhite = True
+            alter = True
 
-def highlightChessMovement(screen, game, selectedSquare, ignore: bool = False):
+def highlightPieceMovement(screen, game, colors: list, selectedSquare: tuple, ignore: bool = False):
     """ ()-> None
     draws onto the screen based on the ChessGame the selected piece and
     any other squares the way.
@@ -71,23 +72,23 @@ def highlightChessMovement(screen, game, selectedSquare, ignore: bool = False):
     board = game.get_board()
     x,y = selectedSquare
     if board[x][y] != None or ignore:
-      drawWhite = True
+      alter = True
       for r in range(_DIMENSIONS):
         for c in range(_DIMENSIONS):
           if r==x and c==y:
             # red circle to highlight possible moves/selected piece
-            p.draw.circle(screen, _CHESSBOARD_COLORS[3], (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2)
-            if drawWhite: # taken from drawing the chessboard, decides the color inner circle color
-              color = _CHESSBOARD_COLORS[0]
+            p.draw.circle(screen, colors[3], (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2)
+            if alter: # taken from drawing the chessboard, decides the color inner circle color
+              color = colors[0]
             else:
-              color = _CHESSBOARD_COLORS[1]
+              color = colors[1]
             # inner circle should match background square
             p.draw.circle(screen, color, (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2.3)
-          drawWhite = not drawWhite
+          alter = not alter
         if r % 2 == 0:
-          drawWhite = False
+          alter = False
         else:
-          drawWhite = True
+          alter = True
 
 def drawArrowPointers(screen, arrowsList: list):
     """ ()-> None
