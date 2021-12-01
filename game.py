@@ -78,13 +78,20 @@ def highlightPieceMovement(screen, game, colors: list, selectedSquare: tuple, ig
         for c in range(_DIMENSIONS):
           if r==x and c==y:
             # red circle to highlight possible moves/selected piece
-            p.draw.circle(screen, colors[2], (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2)
+            if not ignore:
+              p.draw.circle(screen, colors[2], (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2,2)
+            else:
+              p.draw.rect(screen, colors[2], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN],2)
+
             if alter: # taken from drawing the chessboard, decides the color inner circle color
               color = colors[0]
             else:
               color = colors[1]
+            
             # inner circle should match background square
-            p.draw.circle(screen, color, (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2.3)
+            if not ignore:
+              p.draw.circle(screen, color, (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2.3)
+
           alter = not alter
         if r % 2 == 0:
           alter = False
@@ -122,10 +129,7 @@ def movePiece(game, playerMovement):
         game.attempt_move((x1,y1),(x2,y2))
         #game.__move_piece((x1,y1),(x2,y2))
 
-def IngameMenu(screen, clock):
-    """ ()-> None
-    this function draws the in-game menu system to interact with
-    """
+def drawChessEndgame(screen, clock, game):
     pass
 
 # need some type of main function that runs in a loop with an exit condition
@@ -182,8 +186,8 @@ def ChessGame(screen, clock):
                             moveClicks.clear()
                         if validMoves:
                             validMoves.clear()
-#                    else:
-#                        validMoves = game.valid_moves(moveClicks[0])
+                    elif moveClicks:
+                        validMoves = game.valid_moves(moveClicks[0])
 
                     print(f"Selected for movement: {selectedSquare}")
 
@@ -199,6 +203,12 @@ def ChessGame(screen, clock):
 #            IngameMenu(screen, clock)
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
+
+def IngameMenu(screen, clock):
+    """ ()-> None
+    this function draws the in-game menu system to interact with
+    """
+    pass
 
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):

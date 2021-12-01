@@ -255,7 +255,7 @@ class Chess:
             return False
         elif piece_to_move.get_type() == Type.KING:
             #non-castle move logic:
-            positions = ((-1,0),(1,0),(0,-1),(0,1))
+            positions = ((-1,0),(1,0),(0,-1),(0,1),(-1,-1),(1,1),(1,-1),(-1,1))
             for pos in positions:
                 if row1 + pos[0] == row2 and col1 + pos[1] == col2:
                     return self.__check_for_check(to_move,move_to)
