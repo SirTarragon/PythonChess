@@ -196,13 +196,11 @@ def ChessGame(screen, clock, load: bool = False):
                     print(f"Selected for movement: {selectedSquare}")
 
                     if len(moveClicks) == 2:
-                        print(len(moveClicks))
                         movePiece(game,moveClicks)
                         selectedSquare = ()
                         moveClicks.clear()
-                        print(len(moveClicks))
                         validMoves.clear()
-                    print("End of possible click actions")
+
         if _IN_GAME:
             drawChessGame(screen, game, moveClicks, validMoves)
 #        elif _ON_MENU:

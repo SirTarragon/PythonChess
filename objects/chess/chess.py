@@ -270,7 +270,6 @@ class Chess:
             dir_x = (col1 - col2)/abs(col1-col2)*-1
             dir_x = int(math.floor(dir_x))
             #check that king is attempting to move 2 spots over
-            print (col1 + dir_x + dir_x)
             if col1 + dir_x + dir_x != col2:
                 return False
             #checkfor piece in way of castle move
@@ -346,6 +345,7 @@ class Chess:
                 if not to_check:
                     continue
                 if to_check.get_type() == Type.ROOK:
+                    print("Castle'd.")
                     to_check.move()
                     piece_to_move.move()
                     self._board[row1][col2-dir_x] = to_check
