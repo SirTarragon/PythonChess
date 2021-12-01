@@ -91,26 +91,6 @@ def highlightPieceMovement(screen, game, colors: list, selectedSquare: tuple, ig
         else:
           alter = True
 
-def drawArrow(screen, colour, start, end):
-    p.draw.line(screen,colour,start,end,2)
-
-def drawArrowPointers(screen, arrowsList: list):
-    """ ()-> None
-    draws arrow pointers for the player visualizing their strategy
-    """
-    arr1 = True
-    arr2 = False
-    for i,v in enumerate(arrowsList):
-        if arr1:
-            coord1 = v
-            arr1 = not arr1
-            arr2 = not arr2
-        elif arr2:
-            coord2 = v
-            drawArrow(screen, _CHESSBOARD_COLORS[2], ((coord1[1]*_SQLEN), (coord1[0]*_SQLEN)), ((coord2[1]*_SQLEN), (coord2[0]*_SQLEN)))
-            arr1 = not arr1
-            arr2 = not arr2
-
 def drawChessPieces(screen, board):
     """ ()-> None
     this function draws to the screen the pieces present on the board found by
@@ -165,7 +145,6 @@ def ChessGame(screen, clock):
 
     selectedSquare = ()     # need something to hold the selected spot on the GUI
     moveClicks = []       # need to keep track of the player clicks
-#    arrowClicks = []      # need to keep track of all of the arrows
     validMoves = []
 
     # game loop
@@ -178,13 +157,6 @@ def ChessGame(screen, clock):
                 if event.key == p.K_ESCAPE:
 #                    _IN_GAME = not _IN_GAME
                     _ON_MENU = not _ON_MENU
-#                elif event.key == p.K_LALT or event.key == p.K_RALT:
-#                    if arrowClicks:
-#                        arrowClicks.clear()
-#                        arrowsPointFlag = False
-#                elif event.key == p.K_RCTRL or event.key == p.K_LCTRL:
-#                    if arrowClicks and arrowClicks > 2: # pop the arrow
-#                        arrowClicks.pop(-2)
             elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
                 if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
                     location = p.mouse.get_pos()
@@ -196,17 +168,11 @@ def ChessGame(screen, clock):
                         selectedSquare = ()
                         if moveClicks:        # to prevent any heinous bugs due to empty list
                             moveClicks.clear()
-#                        if arrowClicks:
-#                            arrowClicks.pop(-1)
                         if validMoves:
                             validMoves.clear()
                     else:
                         selectedSquare = (row, col)
-#                        if event.button == 1:
                         moveClicks.append(selectedSquare)
-#                        elif event.button == 3:
-#                            arrowClicks.append(selectedSquare)
-
 
                     if len(moveClicks) == 1:
                         tx,ty = moveClicks[0]
@@ -227,24 +193,24 @@ def ChessGame(screen, clock):
                         moveClicks.clear()
                         if validMoves:
                             validMoves.clear()
-
-#                    if len(arrowClicks) >= 2 and not arrowsPointFlag:
-#                        arrowsPointFlag = True
-
-
         if _IN_GAME:
             drawChessGame(screen, game, moveClicks, validMoves)
-#            if arrowsPointFlag:
-#                drawArrowPointers(screen, arrowClicks)
 #        elif _ON_MENU:
 #            IngameMenu(screen, clock)
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
 
+# this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
     while True:
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                sys.exit()
+            if event.type == p.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    pass
         screen.fill((0,0,0))
-        draw_text('')
 
 if __name__ == "__main__":
     p.init()        # initialize pygame
