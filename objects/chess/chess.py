@@ -337,7 +337,8 @@ class Chess:
         else:
             self._enpassant[1] = False
 
-        if self._castle and piece_type == Type.KING:
+        columncheck = (col1 + 2) == col2 or (col1 - 2) == col2
+        if self._castle and piece_type == Type.KING and columncheck:
             dir_x = (col1 - col2)/abs(col1-col2)*-1
             dir_x = int(math.floor(dir_x))
             for i in range(col1+dir_x, -1 if dir_x == -1 else 8, dir_x):
@@ -351,7 +352,8 @@ class Chess:
                     self._board[row1][col2-dir_x] = to_check
                     self._board[row1][i] = None
             self._castle = False
-
+        else:
+            self._castle = False
         # update the gamestate
         # check if one player is in check or checkmate
         if self.__in_check_mate(True) and self.__in_check_mate(False):
