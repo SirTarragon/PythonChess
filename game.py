@@ -124,6 +124,7 @@ def movePiece(game, playerMovement):
     board = game.get_board()
     x1,y1 = playerMovement[0]
     x2,y2 = playerMovement[1]
+    print(playerMovement)
 
     if board[x1][y1] != None:
         game.attempt_move((x1,y1),(x2,y2))
@@ -134,7 +135,7 @@ def drawChessEndgame(screen, clock, game):
 
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
-def ChessGame(screen, clock):
+def ChessGame(screen, clock, load: bool = False):
     """ ()-> None
     this is the core process for the ChessGame
     """
@@ -142,7 +143,10 @@ def ChessGame(screen, clock):
     loadChessImages()
     p.display.set_caption("Chess")
     p.display.set_icon(_IMAGES['brook'])
-    game = chess.Chess()  # need to initialize the game by calling the class
+    if load:
+      pass
+    else:
+      game = chess.Chess()  # need to initialize the game by calling the class
     session = True
     arrowsPointFlag = False
     _IN_GAME = True
@@ -192,11 +196,13 @@ def ChessGame(screen, clock):
                     print(f"Selected for movement: {selectedSquare}")
 
                     if len(moveClicks) == 2:
+                        print(len(moveClicks))
                         movePiece(game,moveClicks)
                         selectedSquare = ()
                         moveClicks.clear()
-                        if validMoves:
-                            validMoves.clear()
+                        print(len(moveClicks))
+                        validMoves.clear()
+                    print("End of possible click actions")
         if _IN_GAME:
             drawChessGame(screen, game, moveClicks, validMoves)
 #        elif _ON_MENU:

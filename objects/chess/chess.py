@@ -35,6 +35,7 @@ class Chess:
         self._game_state = State.NORMAL
         self._turnNum = 0
         self._enpassant = [False, False]
+        self._castle = False
         self.save_board()
 
     def attempt_move(self, to_move: tuple, move_to: tuple) -> State:
@@ -269,6 +270,7 @@ class Chess:
             dir_x = (col1 - col2)/abs(col1-col2)*-1
             dir_x = int(math.floor(dir_x))
             #check that king is attempting to move 2 spots over
+            print (col1 + dir_x + dir_x)
             if col1 + dir_x + dir_x != col2:
                 return False
             #checkfor piece in way of castle move
@@ -278,7 +280,7 @@ class Chess:
                 return False
             rook = None
             for i in range(col1+dir_x, -1 if dir_x == -1 else 8, dir_x):
-                print('searching fro rook @', row1, i)
+                print('searching for rook @', row1, i)
                 to_check = self._board[row1][i]
                 if not to_check:
                     continue
@@ -298,7 +300,9 @@ class Chess:
             else:
                 if self._game_state == State.BLACK_IN_CHECK or self._game_state == State.BLACK_CHECKMATED:
                     return False
-            return self.__check_for_check(to_move,move_to, True)
+                    
+            self._castle = True
+            return self.__check_for_check(to_move,move_to)
             
 
     def __move_piece(self, to_move: tuple, move_to: tuple):
@@ -334,6 +338,20 @@ class Chess:
         else:
             self._enpassant[1] = False
 
+        if self._castle and piece_type == Type.KING:
+            dir_x = (col1 - col2)/abs(col1-col2)*-1
+            dir_x = int(math.floor(dir_x))
+            for i in range(col1+dir_x, -1 if dir_x == -1 else 8, dir_x):
+                to_check = self._board[row1][i]
+                if not to_check:
+                    continue
+                if to_check.get_type() == Type.ROOK:
+                    to_check.move()
+                    piece_to_move.move()
+                    self._board[row1][col2-dir_x] = to_check
+                    self._board[row1][i] = None
+            self._castle = False
+
         # update the gamestate
         # check if one player is in check or checkmate
         if self.__in_check_mate(True) and self.__in_check_mate(False):
@@ -350,26 +368,13 @@ class Chess:
             self._game_state = State.NORMAL
         print("Result state: ", self._game_state.name)
 
-    def __check_for_check(self, to_move: tuple, move_to: tuple, castle: bool = False) -> bool:
+    def __check_for_check(self, to_move: tuple, move_to: tuple) -> bool:
         row1, col1 = to_move
         row2, col2 = move_to
         piece_to_move = self._board[row1][col1]
         piece_to_remove = self._board[row2][col2]
         self._board[row2][col2] = piece_to_move
         self._board[row1][col1] = None  
-        to_check = None
-        if castle:
-            dir_x = (col1 - col2)/abs(col1-col2)*-1
-            dir_x = int(math.floor(dir_x))
-            for i in range(col1+dir_x, -1 if dir_x == -1 else 8, dir_x):
-                to_check = self._board[row1][i]
-                if not to_check:
-                    continue
-                if to_check.get_type() == Type.ROOK:
-                    to_check.move()
-                    piece_to_move.move()
-                    self._board[row1][col2-dir_x] = to_check
-                    self._board[row1][i] = None
         checked = self.__in_check(piece_to_move.is_white())
         self._board[row1][col1] = piece_to_move
         self._board[row2][col2] = piece_to_remove
