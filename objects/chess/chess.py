@@ -1,6 +1,6 @@
 import copy
 import math
-from typing import List
+from typing import List, cast
 try:
   import pieces as pieces
 except ModuleNotFoundError:
@@ -84,23 +84,12 @@ class Chess:
         # returns empty tuple if no valid moves available, or invalid input
         # Easiest way I think would be validating to_move and then calling can_move on all squares
         # index and return any that return true, although that may prove inefficient
-        row, col = to_move
-        piece_to_move = self._board[row][col]
-
-        if self._enpassant[0]:
-          print("Enpassant is possible this turn.")
-
-        if piece_to_move.get_type() == Type.PAWN:
-            pass
-        elif piece_to_move.get_type() == Type.ROOK:
-            pass
-        elif piece_to_move.get_type() == Type.BISHOP:
-            pass
-        elif piece_to_move.get_type() == Type.QUEEN:
-            pass
-        elif piece_to_move.get_type() == Type.KING:
-            pass
-        pass
+        moves = []
+        for i in range(8):
+            for x in range(8):
+                if self.__can_move(to_move, (i,x)):
+                    moves.append((i,x))
+        return moves
 
     def get_board(self) -> List[List[pieces.Piece]]:
         """()-> List[List[pieces.Piece]]
@@ -208,7 +197,8 @@ class Chess:
             checkrow = row1 + int(math.floor(dif_x))
             checkcol = col1 + int(math.floor(dif_y))
             #check for no pieces en route to row2,col2
-            while not self.__out_of_bounds((checkrow, checkcol)):
+            move_one = False if checkrow == row2 and checkcol == col2 else True
+            while not self.__out_of_bounds((checkrow, checkcol)) and move_one:
                 to_check = self._board[checkrow][checkcol]
                 if to_check:
                     return False
@@ -230,12 +220,14 @@ class Chess:
                         return False
                 if piece_to_remove and piece_to_remove.is_white() == piece_to_move.is_white():
                     return False
+                return self.__check_for_check(to_move, move_to)
             elif col1 == col2:
                 for i in range(row2 > row1 and row2-1 or row1-1, row1 if row2 > row1 else row2, -1):
                     if self._board[i][col1]:
                         return False
                 if piece_to_remove and piece_to_remove.is_white() == piece_to_move.is_white():
                     return False
+                return self.__check_for_check(to_move,move_to)
             #check bishop style moves
             dif_x = row1 - row2
             dif_y = col1 - col2
@@ -246,7 +238,8 @@ class Chess:
             checkrow = row1 + int(math.floor(dif_x))
             checkcol = col1 + int(math.floor(dif_y))
             #check for no pieces en route to row2,col2
-            while not self.__out_of_bounds((checkrow, checkcol)):
+            move_one = False if checkrow == row2 and checkcol == col2 else True
+            while not self.__out_of_bounds((checkrow, checkcol)) and move_one:
                 to_check = self._board[checkrow][checkcol]
                 if to_check:
                     return False
@@ -261,13 +254,52 @@ class Chess:
                 return self.__check_for_check(to_move, move_to)
             return False
         elif piece_to_move.get_type() == Type.KING:
-            #add castle logic here
             #non-castle move logic:
             positions = ((-1,0),(1,0),(0,-1),(0,1))
             for pos in positions:
                 if row1 + pos[0] == row2 and col1 + pos[1] == col2:
                     return self.__check_for_check(to_move,move_to)
-            return False
+            #add castle logic here
+            #King has moved, cant castle
+            if piece_to_move.get_moved():
+                return False
+            #non-lateral movement, can't castle
+            if row2 != row1:
+                return False
+            dir_x = (col1 - col2)/abs(col1-col2)*-1
+            dir_x = int(math.floor(dir_x))
+            #check that king is attempting to move 2 spots over
+            if col1 + dir_x + dir_x != col2:
+                return False
+            #checkfor piece in way of castle move
+            if self._board[row1][col1+dir_x]:
+                return False
+            if piece_to_remove:
+                return False
+            rook = None
+            for i in range(col1+dir_x, -1 if dir_x == -1 else 8, dir_x):
+                print('searching fro rook @', row1, i)
+                to_check = self._board[row1][i]
+                if not to_check:
+                    continue
+                if to_check.get_type() != Type.ROOK:
+                    return False
+                if to_check.is_white() != piece_to_move.is_white():
+                    return False
+                rook = to_check
+            if not rook:
+                return False
+            if rook.get_moved():
+                return False
+            #check that you aren't in check, cant castle out of check
+            if self._turn:
+                if self._game_state == State.WHITE_IN_CHECK or self._game_state == State.WHITE_CHECKMATED:
+                    return False
+            else:
+                if self._game_state == State.BLACK_IN_CHECK or self._game_state == State.BLACK_CHECKMATED:
+                    return False
+            return self.__check_for_check(to_move,move_to, True)
+            
 
     def __move_piece(self, to_move: tuple, move_to: tuple):
         # Assumes to_move can move to move_to
@@ -316,26 +348,32 @@ class Chess:
             self._game_state = State.BLACK_IN_CHECK
         else:
             self._game_state = State.NORMAL
+        print("Result state: ", self._game_state.name)
 
-    def __check_for_check(self, to_move: tuple, move_to: tuple) -> bool:
+    def __check_for_check(self, to_move: tuple, move_to: tuple, castle: bool = False) -> bool:
         row1, col1 = to_move
         row2, col2 = move_to
         piece_to_move = self._board[row1][col1]
+        piece_to_remove = self._board[row2][col2]
         self._board[row2][col2] = piece_to_move
-        self._board[row1][col1] = None
+        self._board[row1][col1] = None  
+        to_check = None
+        if castle:
+            dir_x = (col1 - col2)/abs(col1-col2)*-1
+            dir_x = int(math.floor(dir_x))
+            for i in range(col1+dir_x, -1 if dir_x == -1 else 8, dir_x):
+                to_check = self._board[row1][i]
+                if not to_check:
+                    continue
+                if to_check.get_type() == Type.ROOK:
+                    to_check.move()
+                    piece_to_move.move()
+                    self._board[row1][col2-dir_x] = to_check
+                    self._board[row1][i] = None
         checked = self.__in_check(piece_to_move.is_white())
-        if checked:
-            self._board[row1][col1] = piece_to_move
-            self._board[row2][col2] = None
-            return False
-        checked = self.__in_check_mate(piece_to_move.is_white())
-        if checked:
-            self._board[row1][col1] = piece_to_move
-            self._board[row2][col2] = None
-            return False
         self._board[row1][col1] = piece_to_move
-        self._board[row2][col2] = None
-        return True
+        self._board[row2][col2] = piece_to_remove
+        return not checked
 
     def __in_check(self, check_white: bool) -> bool:
         # Returns true/false based on self._board
@@ -347,7 +385,7 @@ class Chess:
         for row_num, row in enumerate(self._board):
             for col_num, col in enumerate(row):
                 if col == None:
-                    break
+                    continue
                 elif col.get_type() == Type.KING and check_white == col.is_white():
                     col_of_king = col_num
                     row_of_king = row_num
@@ -454,7 +492,13 @@ class Chess:
         return False
 
     def __in_check_mate(self, check_white: bool) -> bool:
-        pass
+        for i in range(8):
+            for x in range(8):
+                to_check = self._board[i][x]
+                if to_check and to_check.is_white() == check_white:
+                    if self.valid_moves((i,x)):
+                        return False
+        return True
 
     def save_board(self) -> bool:
         """()-> bool

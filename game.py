@@ -77,7 +77,7 @@ def highlightPieceMovement(screen, game, colors: list, selectedSquare: tuple, ig
         for c in range(_DIMENSIONS):
           if r==x and c==y:
             # red circle to highlight possible moves/selected piece
-            p.draw.circle(screen, colors[3], (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2)
+            p.draw.circle(screen, colors[2], (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2)
             if alter: # taken from drawing the chessboard, decides the color inner circle color
               color = colors[0]
             else:
