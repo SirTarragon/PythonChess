@@ -1,6 +1,7 @@
 from objects import chess
 import pygame as p
 import client as cl
+import math
 import sys
 
 # knowing the width and height (pixel count/area of screen)
@@ -90,11 +91,25 @@ def highlightPieceMovement(screen, game, colors: list, selectedSquare: tuple, ig
         else:
           alter = True
 
+def drawArrow(screen, colour, start, end):
+    p.draw.line(screen,colour,start,end,2)
+
 def drawArrowPointers(screen, arrowsList: list):
     """ ()-> None
     draws arrow pointers for the player visualizing their strategy
     """
-    pass
+    arr1 = True
+    arr2 = False
+    for i,v in enumerate(arrowsList):
+        if arr1:
+            coord1 = v
+            arr1 = not arr1
+            arr2 = not arr2
+        elif arr2:
+            coord2 = v
+            drawArrow(screen, _CHESSBOARD_COLORS[2], ((coord1[1]*_SQLEN), (coord1[0]*_SQLEN)), ((coord2[1]*_SQLEN), (coord2[0]*_SQLEN)))
+            arr1 = not arr1
+            arr2 = not arr2
 
 def drawChessPieces(screen, board):
     """ ()-> None
@@ -150,7 +165,7 @@ def ChessGame(screen, clock):
 
     selectedSquare = ()     # need something to hold the selected spot on the GUI
     moveClicks = []       # need to keep track of the player clicks
-    arrowClicks = []      # need to keep track of all of the arrows
+#    arrowClicks = []      # need to keep track of all of the arrows
     validMoves = []
 
     # game loop
@@ -163,13 +178,13 @@ def ChessGame(screen, clock):
                 if event.key == p.K_ESCAPE:
 #                    _IN_GAME = not _IN_GAME
                     _ON_MENU = not _ON_MENU
-                elif event.key == p.K_LALT or event.key == p.R_ALT:
-                    if arrowClicks:
-                        arrowClicks.clear()
-                        arrowsPointFlag = False
-                elif event.key == p.K_RCTRL or event.key == p.K_LCTRL:
-                    if arrowClicks and arrowClicks > 2: # pop the arrow
-                        arrowClicks.pop(-2)
+#                elif event.key == p.K_LALT or event.key == p.K_RALT:
+#                    if arrowClicks:
+#                        arrowClicks.clear()
+#                        arrowsPointFlag = False
+#                elif event.key == p.K_RCTRL or event.key == p.K_LCTRL:
+#                    if arrowClicks and arrowClicks > 2: # pop the arrow
+#                        arrowClicks.pop(-2)
             elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
                 if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
                     location = p.mouse.get_pos()
@@ -181,16 +196,16 @@ def ChessGame(screen, clock):
                         selectedSquare = ()
                         if moveClicks:        # to prevent any heinous bugs due to empty list
                             moveClicks.clear()
-                        if arrowClicks:
-                            arrowClicks.pop(-1)
+#                        if arrowClicks:
+#                            arrowClicks.pop(-1)
                         if validMoves:
                             validMoves.clear()
                     else:
                         selectedSquare = (row, col)
-                        if event.button == 1:
-                            moveClicks.append(selectedSquare)
-                        elif event.button == 3:
-                            arrowClicks.append(selectedSquare)
+#                        if event.button == 1:
+                        moveClicks.append(selectedSquare)
+#                        elif event.button == 3:
+#                            arrowClicks.append(selectedSquare)
 
 
                     if len(moveClicks) == 1:
@@ -213,14 +228,14 @@ def ChessGame(screen, clock):
                         if validMoves:
                             validMoves.clear()
 
-                    if len(arrowClicks) >= 2 and not arrowsPointFlag:
-                        arrowsPointFlag = True
+#                    if len(arrowClicks) >= 2 and not arrowsPointFlag:
+#                        arrowsPointFlag = True
 
 
         if _IN_GAME:
             drawChessGame(screen, game, moveClicks, validMoves)
-            if arrowsPointFlag:
-                drawArrowPointers(screen, arrowClicks)
+#            if arrowsPointFlag:
+#                drawArrowPointers(screen, arrowClicks)
 #        elif _ON_MENU:
 #            IngameMenu(screen, clock)
         clock.tick(_MINFPS)
