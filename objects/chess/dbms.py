@@ -16,8 +16,7 @@ boardStateTableCreate = """
 		row INTEGER, 
 		column INTEGER, 
 		turn BOOLEAN,
-		turnNum INTEGER,
-		PRIMARY KEY (piece, color, turnNum)
+		turnNum INTEGER
 		)
 	"""
 cursor.execute(boardStateTableCreate)

@@ -217,6 +217,15 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
 
+# MENU UTILITIES ----------------------------------------------------------------------------------
+
+def drawButton(screen, color, ren, button):
+    draw = p.draw.rect(screen, color, button)
+    loc = ren.get_rect(center = draw.center)
+    screen.blit(ren, loc)
+
+# MENUS -------------------------------------------------------------------------------------------
+
 def IngameMenu(screen, clock):
     """ ()-> None
     this function draws the in-game menu system to interact with
@@ -229,6 +238,15 @@ def MainMenu(screen, clock):
     multi_button = p.Rect(_SQLEN * 2, 200, _SQLEN * 4, 50)
     load_button = p.Rect(_SQLEN * 2, 300, _SQLEN * 4, 50)
     quit_button = p.Rect(_SQLEN * 2, 400, _SQLEN * 4, 50)
+
+    font = p.font.SysFont('Arial', 25)
+    play = font.render("Play Singleplayer", True, p.Color("white"))
+    multi = font.render("Play Multiplayer", True, p.Color("white"))
+    load = font.render("Load Previous", True, p.Color("white"))
+    quit = font.render("Quit", True, p.Color("white"))
+
+    button_color = p.Color("red")
+
     while True:
         for event in p.event.get():
             if event.type == p.QUIT:
@@ -255,11 +273,11 @@ def MainMenu(screen, clock):
 
         #screen.blit(_IMAGES['mainmenu_background'], (0,0))
         screen.fill(p.Color("gray"))
-        
-        p.draw.rect(screen, p.Color("red"), play_button)
-        p.draw.rect(screen, p.Color("red"), multi_button)
-        p.draw.rect(screen, p.Color("red"), load_button)
-        p.draw.rect(screen, p.Color("red"), quit_button)
+
+        drawButton(screen, button_color, play, play_button)
+        drawButton(screen, button_color, multi, multi_button)
+        drawButton(screen, button_color, load, load_button)
+        drawButton(screen, button_color, quit, quit_button)
 
         clock.tick(_MINFPS)
         p.display.update()

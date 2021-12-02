@@ -517,7 +517,7 @@ class Chess:
             for col_num, col in enumerate(row):
                 if not col:
                     continue
-                if not db.saveState(str(col)+str(row_num)+str(col_num), col.is_white(), row_num, col_num, self._turn, self._turnNum):
+                if not db.saveState(str(col), col.is_white(), row_num, col_num, self._turn, self._turnNum):
                     print("unable to save ", col, "@ ", row_num, col_num)
         print("Finished saving current board state")
 
@@ -532,17 +532,17 @@ class Chess:
         tempBoard = [[None for _ in range(8)] for _ in range(8)]
         for dataSet in dataList:
             pieceName, col, row, column = dataSet
-            if pieceName[0] == "O":
+            if pieceName == "O":
                 piece = pieces.Pawn(color = col)
-            if pieceName[0] == "B":
+            if pieceName == "B":
                 piece = pieces.Bishop(color = col)
-            if pieceName[0] == "N":
+            if pieceName == "N":
                 piece = pieces.Knight(color = col)
-            if pieceName[0] == "R":
+            if pieceName == "R":
                 piece = pieces.Rook(color = col)
-            if pieceName[0] == "K":
+            if pieceName == "K":
                 piece = pieces.King(color = col)
-            if pieceName[0] == "Q":
+            if pieceName == "Q":
                 piece = pieces.Queen(color = col)
             tempBoard[row][column] = piece
         self._board = tempBoard
