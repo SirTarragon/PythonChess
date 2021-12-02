@@ -22,15 +22,12 @@ _IN_GAME = False
 _CHESSBOARD_COLORS = [p.Color("white"), p.Color("gray"), p.Color("red")]
 _DROUGHT_COLORS = [p.Color("red"), p.Color("gray"), p.Color("white")]
 
-def loadChessImages():
+def loadMenuImages():
     """ ()-> None
     this loads the image files correlated to the main menu. These images need to be stored in the resources/menu/ directory with the appropriately listed names.
     """
-    menustuff = [
-        'playbutton', 'mpbutton', 'loadbutton', 'quitbutton', 'mainmenu_background'
-    ]
-    for stuff in menustuff:
-        _IMAGES[stuff] = p.image.load("resources/menu/" + stuff + ".png")
+    mn = 'mainmenu_bg'
+    _IMAGES[mn] = p.image.load("resources/menu/" + mn + ".png")
 
 def loadChessImages():
     """ ()-> None
