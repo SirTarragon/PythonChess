@@ -354,6 +354,7 @@ class Chess:
             self._castle = False
         else:
             self._castle = False
+
         # update the gamestate
         # check if one player is in check or checkmate
         if self.__in_check_mate(True) and self.__in_check_mate(False):
@@ -546,6 +547,9 @@ class Chess:
                 piece = pieces.Queen(color = col)
             tempBoard[row][column] = piece
         self._board = tempBoard
+
+    def delete_saves(self):
+      db.clearState()
 
     @staticmethod
     def __out_of_bounds(bounds: tuple) -> bool:

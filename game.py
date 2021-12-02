@@ -153,6 +153,8 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
     game = chess.Chess()    # need to initialize the game by calling the class
     if load:
       game.load_board(turn)
+    else:
+      game.delete_saves()
     session = True
     arrowsPointFlag = False
     _IN_GAME = True
@@ -231,14 +233,18 @@ def IngameMenu(screen, clock):
 
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
-    play_button = p.Rect(_SQLEN * 2, 100, _SQLEN * 4, 50)
-    multi_button = p.Rect(_SQLEN * 2, 200, _SQLEN * 4, 50)
-    load_button = p.Rect(_SQLEN * 2, 300, _SQLEN * 4, 50)
-    quit_button = p.Rect(_SQLEN * 2, 400, _SQLEN * 4, 50)
+    count = 100
+    play_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
+    #count += 100
+    #multi_button = p.Rect(_SQLEN * 2, 200, _SQLEN * 4, 50)
+    count += 100
+    load_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
+    count += 100
+    quit_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
 
     font = p.font.SysFont('Arial', 25)
-    play = font.render("Play Singleplayer", True, p.Color("white"))
-    multi = font.render("Play Multiplayer", True, p.Color("white"))
+    play = font.render("Play New Game", True, p.Color("white"))
+    #multi = font.render("Play Multiplayer", True, p.Color("white"))
     load = font.render("Load Previous", True, p.Color("white"))
     quit = font.render("Quit", True, p.Color("white"))
 
@@ -255,9 +261,9 @@ def MainMenu(screen, clock):
                     if play_button.collidepoint((x,y)):
                         print("Starting Singleplayer Game")
                         ChessGame(screen,clock)
-                    if multi_button.collidepoint((x,y)):
-                        print("Starting Multiplayer Session")
-                        ChessGame(screen,clock, multiplayer = True)
+                    #if multi_button.collidepoint((x,y)):
+                    #    print("Starting Multiplayer Session")
+                    #    ChessGame(screen,clock, multiplayer = True)
                     if load_button.collidepoint((x,y)):
                         print("Loading Previous Session")
                         inturn = int(input("Input Turn Number : "))
@@ -272,7 +278,7 @@ def MainMenu(screen, clock):
         screen.fill(p.Color("gray"))
 
         drawButton(screen, button_color, play, play_button)
-        drawButton(screen, button_color, multi, multi_button)
+        #drawButton(screen, button_color, multi, multi_button)
         drawButton(screen, button_color, load, load_button)
         drawButton(screen, button_color, quit, quit_button)
 

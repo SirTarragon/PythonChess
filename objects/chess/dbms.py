@@ -61,3 +61,20 @@ def saveState(*args) -> bool:
 		cursor.close()
 		connection.close()
 		return True		
+
+def clearState() -> bool:
+  connection = sqlite3.connect('pychess.db')
+  cursor = connection.cursor()
+  query = """
+  DELETE FROM BoardState
+  """
+
+  try:
+    cursor.execute(query)
+    connection.commit()
+  except:
+    return False
+  finally:
+    cursor.close()
+    connection.close()
+    return True
