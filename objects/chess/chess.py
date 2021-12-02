@@ -36,7 +36,7 @@ class Chess:
         self._turnNum = 0
         self._enpassant = [False, False]
         self._castle = False
-        self.save_board()
+        #self.save_board()
 
     def attempt_move(self, to_move: tuple, move_to: tuple) -> State:
         """
@@ -545,7 +545,7 @@ class Chess:
             elif pieceName == "Q":
                 piece = pieces.Queen(color = col)
             tempBoard[row][column] = piece
-        return tempBoard
+        self._board = tempBoard
 
     @staticmethod
     def __out_of_bounds(bounds: tuple) -> bool:

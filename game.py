@@ -135,7 +135,7 @@ def drawChessEndgame(screen, clock, game):
 
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
-def ChessGame(screen, clock, load: bool = False):
+def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: bool = False):
     """ ()-> None
     this is the core process for the ChessGame
     """
@@ -143,10 +143,9 @@ def ChessGame(screen, clock, load: bool = False):
     loadChessImages()
     p.display.set_caption("Chess")
     p.display.set_icon(_IMAGES['brook'])
+    game = chess.Chess()    # need to initialize the game by calling the class
     if load:
-      pass
-    else:
-      game = chess.Chess()  # need to initialize the game by calling the class
+      game.load_board(turn)
     session = True
     arrowsPointFlag = False
     _IN_GAME = True
@@ -216,6 +215,10 @@ def IngameMenu(screen, clock):
 
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
+    play_button = p.Rect(_SQLEN * 2, 100, _SQLEN * 4, 50)
+    multi_button = p.Rect(_SQLEN * 2, 200, _SQLEN * 4, 50)
+    load_button = p.Rect(_SQLEN * 2, 300, _SQLEN * 4, 50)
+    quit_button = p.Rect(_SQLEN * 2, 400, _SQLEN * 4, 50)
     while True:
         for event in p.event.get():
             if event.type == p.QUIT:
@@ -223,12 +226,37 @@ def MainMenu(screen, clock):
                 sys.exit()
             if event.type == p.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    pass
-        screen.fill((0,0,0))
+                    x,y = p.mouse.get_pos()
+                    if play_button.collidepoint((x,y)):
+                        print("Starting Singleplayer Game")
+                        ChessGame(screen,clock)
+                    if multi_button.collidepoint((x,y)):
+                        print("Starting Multiplayer Session")
+                        ChessGame(screen,clock, multiplayer = True)
+                    if load_button.collidepoint((x,y)):
+                        print("Loading Previous Session")
+                        inturn = int(input("Input Turn Number : "))
+                        ChessGame(screen,clock, turn = inturn, load = True)
+                    if quit_button.collidepoint((x,y)):
+                        print("Quitting...")
+                        p.quit()
+                        sys.exit()
+
+
+        screen.fill(p.Color("gray"))
+        
+        p.draw.rect(screen, p.Color("red"), play_button)
+        p.draw.rect(screen, p.Color("red"), multi_button)
+        p.draw.rect(screen, p.Color("red"), load_button)
+        p.draw.rect(screen, p.Color("red"), quit_button)
+
+        clock.tick(_MINFPS)
+        p.display.update()
 
 if __name__ == "__main__":
     p.init()        # initialize pygame
     clock = p.time.Clock()
     screen = p.display.set_mode((_WIDTH, _HEIGHT))
-    ChessGame(screen, clock) # main game for the board
+    #ChessGame(screen, clock) # main game for the board
+    MainMenu(screen,clock)
     # will likely want to return to main menu of the whole game system
