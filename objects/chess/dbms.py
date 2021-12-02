@@ -49,7 +49,7 @@ def saveState(*args) -> bool:
 	connection = sqlite3.connect('pychess.db')
 	cursor = connection.cursor()
 	query = """
-		INSERT INTO BoardState(piece, color, row, col, turn, turnNum)
+		INSERT INTO BoardState(piece, color, row, column, turn, turnNum)
 		VALUES (?,?,?,?,?,?)
 		"""
 
