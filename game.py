@@ -24,6 +24,16 @@ _DROUGHT_COLORS = [p.Color("red"), p.Color("gray"), p.Color("white")]
 
 def loadChessImages():
     """ ()-> None
+    this loads the image files correlated to the main menu. These images need to be stored in the resources/menu/ directory with the appropriately listed names.
+    """
+    menustuff = [
+        'playbutton', 'mpbutton', 'loadbutton', 'quitbutton', 'mainmenu_background'
+    ]
+    for stuff in menustuff:
+        _IMAGES[stuff] = p.image.load("resources/menu/" + stuff + ".png")
+
+def loadChessImages():
+    """ ()-> None
     this loads the image files correlated to chess. These images need to be stored in the
     resources/chess/ directory with the appropriately listed names.
     """
@@ -243,6 +253,7 @@ def MainMenu(screen, clock):
                         sys.exit()
 
 
+        #screen.blit(_IMAGES['mainmenu_background'], (0,0))
         screen.fill(p.Color("gray"))
         
         p.draw.rect(screen, p.Color("red"), play_button)
