@@ -9,7 +9,8 @@ import sys
 # need to know the length of the squares and something global to hold the images
 # and probably a set FPS for drawing
 
-_WIDTH = _HEIGHT = 512
+_WIDTH = 640 # Allow room for side bar when in game
+_HEIGHT = 512
 _DIMENSIONS = 8
 _SQLEN = _HEIGHT // _DIMENSIONS
 _IMAGES = {}    # dictionary/hashmap. For quick image lookup
@@ -134,14 +135,67 @@ def movePiece(game, playerMovement):
     print(playerMovement)
 
     if board[x1][y1] != None:
-        game.attempt_move((x1,y1),(x2,y2))
+        state = game.attempt_move((x1,y1),(x2,y2))
+        if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
+            drawChessEndgame(screen, clock, game, state)
         #game.__move_piece((x1,y1),(x2,y2))
 
-def drawChessEndgame(screen, clock, game):
-    pass
+def drawChessEndgame(screen, clock, game, result):
+    print(result)
+    if result == "STALEMATE":
+        result = "IT'S A TIE!"
+    if result == "WHITE_CHECKMATED":
+        result = "BLACK WINS!"
+    if result == "BLACK_CHECKMATED":
+        result = "WHITE WINS!" 
+
+    count = 130
+    result_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
+    count += 55
+    rematch_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
+    count += 55
+    menu_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
+    count += 55
+    quit_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
+
+    font = p.font.SysFont('Arial', 25)
+    rematch = font.render("Rematch?", True, p.Color("white"))
+    menu = font.render("Main Menu", True, p.Color("white"))
+    quit = font.render("Quit", True, p.Color("white"))
+    result = font.render(result,True,p.Color("white"))
+    
+    button_color = p.Color("black")
+    
+    while True:
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                sys.exit()
+            if event.type == p.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    x,y = p.mouse.get_pos()
+                    if rematch_button.collidepoint((x,y)):
+                        print("Starting New Game")
+                        ChessGame(screen,clock)
+                    if menu_button.collidepoint((x,y)):
+                        print("Loading Main Menu")
+                        MainMenu(screen, clock)
+                    if quit_button.collidepoint((x,y)):
+                        print("Quitting...")
+                        p.quit()
+                        sys.exit()
+                        
+        drawButton(screen, button_color, rematch, rematch_button)
+        drawButton(screen, button_color, menu, menu_button)
+        drawButton(screen, button_color, quit, quit_button)
+        drawButton(screen, "red", result, result_button)
+        
+        clock.tick(_MINFPS)
+        p.display.update()
 
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
+
 def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: bool = False):
     """ ()-> None
     this is the core process for the ChessGame
@@ -231,6 +285,7 @@ def IngameMenu(screen, clock):
     """
     pass
 
+
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
     count = 100
@@ -260,7 +315,7 @@ def MainMenu(screen, clock):
                     x,y = p.mouse.get_pos()
                     if play_button.collidepoint((x,y)):
                         print("Starting New Game")
-                        ChessGame(screen,clock)
+                        ChessGame(p.display.set_mode((_WIDTH-128, _HEIGHT)),clock)
                     #if multi_button.collidepoint((x,y)):
                     #    print("Starting Multiplayer Session")
                     #    ChessGame(screen,clock, multiplayer = True)
