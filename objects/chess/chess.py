@@ -34,7 +34,7 @@ class Chess:
         self._turn = True  # True indicates whether or not it's white's turn
         self._game_state = State.NORMAL
         self._turnNum = 0
-        self._enpassant = [False, False]
+        self._enpassant = None
         self._castle = False
         #self.save_board()
 
@@ -136,7 +136,6 @@ class Chess:
                 if row2 == direction and col2 == col1 and not self._board[row2][col2]:
                     # attempt to move an unmoved pawn 2 spaces to an empty space
                     # modify board
-                    self._enpassant[1] = True
                     return self.__check_for_check(to_move, move_to)
             direction = piece_to_move.is_white() and row1-1 or row1+1
             if not Chess.__out_of_bounds((direction,)) and not self._board[row2][col2]:
@@ -148,6 +147,10 @@ class Chess:
                 if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1):
                     return self.__check_for_check(to_move, move_to)
             if not Chess.__out_of_bounds((direction,)) and not self._board[row2][col2]:
+                if not self._enpassant:
+                    return False
+                if self._enpassant[0] != row1 or self._enpassant[1] != col2:
+                    return False
                 # attempt to en passant
                 # check that move to is empty
                 # then check that adjacent square is a pawn
@@ -327,24 +330,16 @@ class Chess:
         self._board[row2][col2] = piece_to_move
         self._board[row1][col1] = None
         self._turnNum += 1
-        self.save_board()
         self._turn = not self._turn
+        self.save_board()
 
-        if self._enpassant[0] == True:
-            if piece_type == Type.PAWN:
-                direction = piece_to_move.is_white() and row1-1 or row1+1
-                adjacent_pawn = self._board[row1][col2]
-                if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN:
-                    samecolor = adjacent_pawn.is_white() != piece_to_move.is_white()
-                    if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1) and samecolor:
-                        self._board[row1][col2] = None
-            self._enpassant[0] = False					                    # EN PASSANT LASTS SINGLE TURN
-        elif self._enpassant[0] == False and self._enpassant[1] == True: # MOVED TWO SPACES
-            print("Enpassant is possible next turn.")
-            self._enpassant[0] = True
-            self._enpassant[1] = False
-        else:								# DIAG CAPTURE OR 1 SPACE
-            self._enpassant[1] = False
+        if piece_to_move.get_type() == Type.PAWN:
+            if abs(row1 - row2) == 2:
+                self._enpassant = move_to
+            else:
+                self._enpassant = None
+        else:
+            self._enpassant = None
 
         columncheck = (col1 + 2) == col2 or (col1 - 2) == col2
         if self._castle and piece_type == Type.KING and columncheck:
@@ -543,7 +538,7 @@ class Chess:
         dataList = db.loadState(turnNumber)
         tempBoard = [[None for _ in range(8)] for _ in range(8)]
         for dataSet in dataList:
-            pieceName, col, row, column = dataSet
+            pieceName, col, row, column, turnNum = dataSet
             if pieceName == "O":
                 piece = pieces.Pawn(color = col)
             if pieceName == "B":
@@ -557,7 +552,9 @@ class Chess:
             if pieceName == "Q":
                 piece = pieces.Queen(color = col)
             tempBoard[row][column] = piece
+            self._turn = turnNum
         self._board = tempBoard
+        self._turnNum = turnNumber
 
     def delete_saves(self):
       db.clearState()
