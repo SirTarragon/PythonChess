@@ -34,7 +34,7 @@ class Chess:
         self._turn = True  # True indicates whether or not it's white's turn
         self._game_state = State.NORMAL
         self._turnNum = 0
-        self._enpassant = None # Going to store coordinates
+        self._enpassant = None
         self._castle = False
         #self.save_board()
 
@@ -136,8 +136,6 @@ class Chess:
                 if row2 == direction and col2 == col1 and not self._board[row2][col2]:
                     # attempt to move an unmoved pawn 2 spaces to an empty space
                     # modify board
-                    #self._enpassant = [row2,col2]
-                    #print(enpassant, "in _can_move function")
                     return self.__check_for_check(to_move, move_to)
             direction = piece_to_move.is_white() and row1-1 or row1+1
             if not Chess.__out_of_bounds((direction,)) and not self._board[row2][col2]:
@@ -149,11 +147,15 @@ class Chess:
                 if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1):
                     return self.__check_for_check(to_move, move_to)
             if not Chess.__out_of_bounds((direction,)) and not self._board[row2][col2]:
+                if not self._enpassant:
+                    return False
+                if self._enpassant[0] != row1 or self._enpassant[1] != col2:
+                    return False
                 # attempt to en passant
                 # check that move to is empty
                 # then check that adjacent square is a pawn
                 adjacent_pawn = self._board[row1][col2]
-                if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN and self._enpassant != None:
+                if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN and self._enpassant[0]:
                   samecolor = adjacent_pawn.is_white() != piece_to_move.is_white()
                   if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1) and samecolor:
                     return self.__check_for_check(to_move, move_to)
@@ -301,7 +303,6 @@ class Chess:
             self._board[row1][col1 + dir_x] = None
             if check_flag:
                 return False
-                
             #check that you aren't in check, cant castle out of check
             if self._turn:
                 if self._game_state == State.WHITE_IN_CHECK or self._game_state == State.WHITE_CHECKMATED:
@@ -329,35 +330,16 @@ class Chess:
         self._board[row2][col2] = piece_to_move
         self._board[row1][col1] = None
         self._turnNum += 1
-        self.save_board()
         self._turn = not self._turn
+        self.save_board()
 
-        if piece_type == Type.PAWN:
-            if row1 - row2 == 2 or row2 - row1 == 2: # En passant move opened
-                self._enpassant = [row2,col2]
-                print("Possible en passant:", self._enpassant[0],self._enpassant[1])
-            elif self._enpassant != None and not self._turn: # White just moved
-                if col2 == self._enpassant[1]:
-                    if row2 == row1 - 1 and row2 == self._enpassant[0] - 1:
-                        self._board[self._enpassant[0]][self._enpassant[1]] = None
-                        self._enpassant = None
-                        print("En passant taken: ", self._enpassant)
-                else:						# Was not En Passant move
-                    self._enpassant = None
-                    print("En passant missed: ", self._enpassant)
-            elif self._enpassant != None and self._turn: # Black just moved
-                if col2 == self._enpassant[1]:
-                    if row2 == row1 + 1 and row2 == self._enpassant[0] + 1:
-                        self._board[self._enpassant[0]][self._enpassant[1]] = None
-                        self._enpassant = None
-                        print("En passant taken: ", self._enpassant)
-                else:						# Was not En Passant move
-                    self._enpassant = None
-                    print("En passant missed: ", self._enpassant)
-            	
-        if piece_type != Type.PAWN and self._enpassant != None: # Another piece moved, close En passant
+        if piece_to_move.get_type() == Type.PAWN:
+            if abs(row1 - row2) == 2:
+                self._enpassant = move_to
+            else:
+                self._enpassant = None
+        else:
             self._enpassant = None
-            print("En passant missed:", self._enpassant)
 
         columncheck = (col1 + 2) == col2 or (col1 - 2) == col2
         if self._castle and piece_type == Type.KING and columncheck:
@@ -556,7 +538,7 @@ class Chess:
         dataList = db.loadState(turnNumber)
         tempBoard = [[None for _ in range(8)] for _ in range(8)]
         for dataSet in dataList:
-            pieceName, col, row, column = dataSet
+            pieceName, col, row, column, turnNum = dataSet
             if pieceName == "O":
                 piece = pieces.Pawn(color = col)
             if pieceName == "B":
@@ -570,7 +552,9 @@ class Chess:
             if pieceName == "Q":
                 piece = pieces.Queen(color = col)
             tempBoard[row][column] = piece
+            self._turn = turnNum
         self._board = tempBoard
+        self._turnNum = turnNumber
 
     def delete_saves(self):
         db.clearState()
