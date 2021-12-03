@@ -292,6 +292,14 @@ class Chess:
                 return False
             if rook.get_moved():
                 return False
+            #check that you can't castle through check
+            self._board[row1][col1+dir_x] = piece_to_move
+            self._board[row1][col1] = None
+            check_flag = self.__in_check(self._turn)
+            self._board[row1][col1] = piece_to_move
+            self._board[row1][col1 + dir_x] = None
+            if check_flag:
+                return False
             #check that you aren't in check, cant castle out of check
             if self._turn:
                 if self._game_state == State.WHITE_IN_CHECK or self._game_state == State.WHITE_CHECKMATED:
