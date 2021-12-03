@@ -259,7 +259,7 @@ def MainMenu(screen, clock):
                 if event.button == 1:
                     x,y = p.mouse.get_pos()
                     if play_button.collidepoint((x,y)):
-                        print("Starting Singleplayer Game")
+                        print("Starting New Game")
                         ChessGame(screen,clock)
                     #if multi_button.collidepoint((x,y)):
                     #    print("Starting Multiplayer Session")
