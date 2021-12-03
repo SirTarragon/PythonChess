@@ -323,13 +323,13 @@ class Chess:
         self._turn = not self._turn
 
         if self._enpassant[0] == True:
-            if piece_type = Type.PAWN:
+            if piece_type == Type.PAWN:
                 direction = piece_to_move.is_white() and row1-1 or row1+1
                 adjacent_pawn = self._board[row1][col2]
-                    if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN:
-				    samecolor = adjacent_pawn.is_white() != piece_to_move.is_white()
-				    if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1) and samecolor:
-					    self._board[row1][col2] = None
+                if adjacent_pawn and adjacent_pawn.get_type() == Type.PAWN:
+                    samecolor = adjacent_pawn.is_white() != piece_to_move.is_white()
+                    if row2 == direction and (col2 == col1 - 1 or col2 == col1 + 1) and samecolor:
+                        self._board[row1][col2] = None
             self._enpassant[0] = False					                    # EN PASSANT LASTS SINGLE TURN
         elif self._enpassant[0] == False and self._enpassant[1] == True: # MOVED TWO SPACES
             print("Enpassant is possible next turn.")
@@ -371,6 +371,8 @@ class Chess:
         else:
             self._game_state = State.NORMAL
         print("Result state: ", self._game_state.name)
+        
+        return self._game_state.name # OUTPUT TO GUI
 
     def __check_for_check(self, to_move: tuple, move_to: tuple) -> bool:
         row1, col1 = to_move
