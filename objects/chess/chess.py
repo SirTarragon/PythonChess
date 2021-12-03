@@ -500,7 +500,7 @@ class Chess:
             to_check = not self.__out_of_bounds((x,y)) and self._board[x][y] or None
             if not to_check:
                 continue
-            if to_check.get_type() == Type.KING and to_check.is_white() != check_white:
+            if to_check.get_type() == Type.KNIGHT and to_check.is_white() != check_white:
                 return True
 
         return False
@@ -557,7 +557,7 @@ class Chess:
         self._turnNum = turnNumber
 
     def delete_saves(self):
-      db.clearState()
+        db.clearState()
 
     @staticmethod
     def __out_of_bounds(bounds: tuple) -> bool:
