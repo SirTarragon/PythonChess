@@ -514,6 +514,64 @@ def PlayerOptionMenu(screen, clock, mode: bool = False):
         clock.tick(_MINFPS)
         p.display.update()
 
+def LoadSaveMenu(screen, clock):
+    input_label = p.Rect(_SQLEN, 150, _SQLEN * 6, 50)
+    back_button = p.Rect(_SQLEN * 2, 205, _SQLEN * 4, 50)
+
+    font = p.font.SysFont('Arial', 25)
+    back = font.render("Main Menu", True, p.Color("white"))
+    input_text = font.render("Click on this to enter turn number", True, p.Color("white"))
+
+    session = True
+    active = False
+    text = ""
+
+    screen.fill(p.Color("gray"))
+
+    while session:
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+            if event.type == p.MOUSEBUTTONDOWN:
+                # If the user clicked on the input_box rect.
+                if input_label.collidepoint(event.pos):
+                    # Toggle the active variable.
+                    active = not active
+                    text = "|"
+                    input_text = font.render(text, True, p.Color("white"))
+                    text = text[:-1]
+                else:
+                    active = False
+
+                if back_button.collidepoint(event.pos):
+                    print("Main Menu")
+                    session = False
+                    print("Back to Main Menu")
+                    MainMenu(screen,clock)
+
+            if event.type == p.KEYDOWN:
+                if active:
+                    if event.key == p.K_RETURN or event.key == p.K_KP_ENTER:
+                        if text:
+                          try:
+                            inturn = int(text)
+                            session = False
+                            ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock, turn = inturn, load = True)
+                          except ValueError:
+                            text = ""
+                    elif event.key == p.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
+                    text += "|"
+                    input_text = font.render(text, True, p.Color("white"))
+                    text = text[:-1]
+
+        drawButton(screen, "black", input_text, input_label)
+        drawButton(screen, "red", back, back_button)
+
+        p.display.flip()
+
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
     count = 100
@@ -553,8 +611,8 @@ def MainMenu(screen, clock):
                     if load_button.collidepoint((x,y)):
                         print("Loading Previous Session")
                         session = False
-                        inturn = int(input("Input Turn Number : "))
-                        ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock, turn = inturn, load = True)
+                        LoadSaveMenu(screen, clock)
+                        
                     if quit_button.collidepoint((x,y)):
                         print("Quitting...")
                         session = False
