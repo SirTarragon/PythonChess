@@ -149,7 +149,7 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
     if result == "BLACK_CHECKMATED":
         result = "WHITE WINS!" 
 
-    result_button = p.Rect(_SQLEN * 8, 0, _SQLEN * 6, 50)
+    result_label = p.Rect(_SQLEN * 8, 0, _SQLEN * 6, 50)
     count = 185
     rematch_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
     count += 55
@@ -193,10 +193,16 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
                         p.quit()
                         sys.exit()
                         
+        info = p.Surface((384,384))
+        info.fill(p.Color(240,234,214))
+        menu = p.Surface((384,128))
+        menu.fill(p.Color(255,204,203))
+        screen.blit(info,(512,0))
+        screen.blit(menu,(512,384))             
         drawButton(screen, button_color, rematch, rematch_button)
         drawButton(screen, button_color, menu, menu_button)
         drawButton(screen, button_color, quit, quit_button)
-        drawButton(screen, "red", result, result_button)
+        drawButton(screen, "red", result, result_label)
         
         clock.tick(_MINFPS)
         p.display.update()
