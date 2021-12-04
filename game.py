@@ -200,6 +200,19 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
 # pygame has an event logger and can interface with the exit button
 
 def ChessGame(screen, clock, turn: int = None, aimode: bool = True, player: bool = False, secondplayer: bool = False, load: bool = False, multiplayer: bool = False):
+    info = p.Surface((384,384))
+    info.fill(p.Color((240, 234, 214))) # (240, 234, 214)
+    menu = p.Surface((384,128))
+    menu.fill(p.Color(255,204,203))
+    
+    count = 416
+
+    quit_button = p.Rect(_SQLEN * 8 + 5, count, _SQLEN * 3 - 10, 50)
+    save_button = p.Rect(_SQLEN * 11 + 5, count, _SQLEN * 3 - 10, 50)
+
+    font = p.font.SysFont('Arial', 20)
+    quit = font.render("Quit to Main Menu", True, p.Color("white"))
+    save = font.render("Save", True, p.Color("white"))
     """ ()-> None
     this is the core process for the ChessGame
     """
@@ -231,12 +244,17 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = True, player: bool
          
     # game loop
     while session:
+        turnText = "white" if game._turn else "black"
+        turnFill = "white" if not game._turn else "black"
+        turn_button = p.Rect(_SQLEN * 8, 0, _SQLEN * 6, 30)
+        turn = font.render("White Turn" if game._turn else "Black Turn", True, p.Color(turnText))
+        
         if aimode and game.get_turn() != player:
             board = game.get_board() # Get updated board before each turn
             
             if _IN_GAME and not select:
                 drawChessGame(screen, game, moveClicks, validCPUMoves) 
-                InGameMenu(screen, clock, game._turn)
+                # InGameMenu(screen, clock, game._turn)
                 if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                     drawChessEndgame(screen, clock, game, state)
                     
@@ -275,7 +293,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = True, player: bool
             
             if _IN_GAME:
                 drawChessGame(screen, game, moveClicks, validCPUMoves) 
-                InGameMenu(screen, clock, game._turn)
+                # InGameMenu(screen, clock, game._turn)
                 if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                     drawChessEndgame(screen, clock, game, state)
                     
@@ -329,7 +347,12 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = True, player: bool
                     col,row = location
                     col = col // _SQLEN
                     row = row // _SQLEN;
-
+                    
+                    if row > 8 or col > 8:
+                       if quit_button.collidepoint((location[0],location[1])):
+                            print("Leaving game early at turn:",game._turnNum)
+                            MainMenu(p.display.set_mode((_WIDTH, _HEIGHT)),clock)
+                            
                     if selectedSquare == (row, col):
                         selectedSquare = ()
                         if moveClicks:        # to prevent any heinous bugs due to empty list
@@ -365,12 +388,19 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = True, player: bool
 
         if _IN_GAME:
             drawChessGame(screen, game, moveClicks, validMoves) 
-            InGameMenu(screen, clock, game._turn)
+            # InGameMenu(screen, clock, game._turn)
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                 drawChessEndgame(screen, clock, game, state, 2)
             # p.display.set_mode((_WIDTH-256, _HEIGHT))
 #        elif _ON_MENU:
 #            IngameMenu(screen, clock)
+
+        screen.blit(info,(512,0))
+        screen.blit(menu,(512,384))
+        drawButton(screen, "red", quit, quit_button)
+        drawButton(screen, "red", save, save_button)
+        drawButton(screen, turnFill, turn, turn_button)
+        
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
         
