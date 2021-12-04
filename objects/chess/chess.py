@@ -136,6 +136,9 @@ class Chess:
                 if row2 == direction and col2 == col1 and not self._board[row2][col2]:
                     # attempt to move an unmoved pawn 2 spaces to an empty space
                     # modify board
+                    for i in range(row2 > row1 and row2 or row1-1, row1 if row2 > row1 else row2-1, -1):
+                        if self._board[i][col1]:
+                            return False
                     return self.__check_for_check(to_move, move_to)
             direction = piece_to_move.is_white() and row1-1 or row1+1
             if not Chess.__out_of_bounds((direction,)) and not self._board[row2][col2]:
