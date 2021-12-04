@@ -1,38 +1,36 @@
 import sqlite3
 from typing import List
 
-# Create connection and cursor
 
-connection = sqlite3.connect('pychess.db')
-cursor = connection.cursor()
 
-# Create all tables if they don't already exist
-
-boardStateTableCreate = """
-	CREATE TABLE IF NOT EXISTS
-	BoardState(
-		piece CHAR(6) NOT NULL, 
-		color BOOLEAN, 
-		row INTEGER, 
-		column INTEGER, 
-		turn BOOLEAN,
-		turnNum INTEGER
-		)
-	"""
-cursor.execute(boardStateTableCreate)
-
-cursor.close()
-connection.close()
-
-# Returns data to load the board at a previous turn number
+def createTable():
+    connection = sqlite3.connect('pychess.db')
+    cursor = connection.cursor()
+    boardStateTableCreate = """
+        CREATE TABLE IF NOT EXISTS
+        BoardState(
+            piece CHAR(6) NOT NULL, 
+            color BOOLEAN,
+            moved BOOLEAN, 
+            row INTEGER, 
+            column INTEGER, 
+            turn BOOLEAN,
+            turnNum INTEGER,
+            PRIMARY KEY (row, column, turnNum)
+            )
+        """
+    cursor.execute(boardStateTableCreate)    
+    cursor.close()
+    connection.close()
 
 
 def loadState(turnNumber) -> List[tuple]:
+    # Returns data to load the board at a previous turn number
     connection = sqlite3.connect('pychess.db')
     cursor = connection.cursor()
 
     query = """
-		SELECT piece, color, row, column, turn
+		SELECT piece, color, moved, row, column, turn
 		FROM BoardState
 		WHERE turnNum = """ + str(turnNumber)
 
@@ -45,15 +43,14 @@ def loadState(turnNumber) -> List[tuple]:
 
     return result
 
-# Stores board state into database
-
 
 def saveState(*args) -> bool:
+    # Stores board state into database
     connection = sqlite3.connect('pychess.db')
     cursor = connection.cursor()
     query = """
-		INSERT INTO BoardState(piece, color, row, column, turn, turnNum)
-		VALUES (?,?,?,?,?,?)
+		INSERT INTO BoardState(piece, color, moved, row, column, turn, turnNum)
+		VALUES (?,?,?,?,?,?,?)
 		"""
 
     try:
@@ -68,18 +65,30 @@ def saveState(*args) -> bool:
 
 
 def clearState() -> bool:
+    print("Clearing table")
     connection = sqlite3.connect('pychess.db')
     cursor = connection.cursor()
     query = """
-    TRUNCATE TABLE BoardState
+    DROP TABLE BoardState
     """
-
     try:
         cursor.execute(query)
         connection.commit()
+        createTable()
     except:
         return False
     finally:
         cursor.close()
         connection.close()
         return True
+
+
+def printTable() -> None:
+    print("Printing table")
+    connection = sqlite3.connect('pychess.db')
+    cursor = connection.cursor()
+    res = cursor.execute("SELECT * FROM BoardState")
+    for r in res:
+        print(r)
+    cursor.close()
+    connection.close()

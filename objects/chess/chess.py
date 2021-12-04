@@ -1,6 +1,7 @@
 import copy
 import math
 from typing import List, cast
+
 try:
   import pieces as pieces
 except ModuleNotFoundError:
@@ -131,7 +132,7 @@ class Chess:
             # one space forward anytime
             # diag to take an occupied opp
             # diag to take an empty spot if adjacent is opp pawn (en passant)
-            direction = piece_to_move.is_white() and row1 - 2 or row1 + 2
+            direction = row1 - 2 if piece_to_move.is_white() else row1 + 2
             if not piece_to_move.get_moved() and not Chess.__out_of_bounds((direction,)):
                 if row2 == direction and col2 == col1 and not self._board[row2][col2]:
                     # attempt to move an unmoved pawn 2 spaces to an empty space
@@ -140,7 +141,7 @@ class Chess:
                         if self._board[i][col1]:
                             return False
                     return self.__check_for_check(to_move, move_to)
-            direction = piece_to_move.is_white() and row1-1 or row1+1
+            direction = row1 - 1 if piece_to_move.is_white() else row1 + 1
             if not Chess.__out_of_bounds((direction,)) and not self._board[row2][col2]:
                 if row2 == direction and col1 == col2:
                     # attempt to move pawn 1 spot to empty square straight
@@ -329,7 +330,16 @@ class Chess:
         piece_type = piece_to_move.get_type()
         if piece_type == Type.PAWN or piece_type == Type.ROOK:
             piece_to_move.move()
-
+        #pawn moving diag to empty space means en passant
+        if piece_type == Type.PAWN and not self._board[row2][col2]:
+            if row1 - 1 == row2 and col1 - 1 == col2:
+                self._board[row1][col1 - 1] = None
+            elif row1 - 1 == row2 and col1 + 1 == col2:
+                self._board[row1][col1 + 1] = None
+            elif row1 + 1 == row2 and col1 + 1 == col2:
+                self._board[row1][col1 + 1] = None
+            elif row1 + 1 == row2 and col1 - 1 == col2:
+                self._board[row1][col1 - 1] = None
         self._board[row2][col2] = piece_to_move
         self._board[row1][col1] = None
         self._turnNum += 1
@@ -529,7 +539,11 @@ class Chess:
             for col_num, col in enumerate(row):
                 if not col:
                     continue
-                if not db.saveState(str(col), col.is_white(), row_num, col_num, self._turn, self._turnNum):
+                moved = False
+                pt = col.get_type()
+                if pt == Type.PAWN or pt == Type.ROOK or pt == Type.KING:
+                    moved = col.get_moved()
+                if not db.saveState(str(col), col.is_white(), moved, row_num, col_num, self._turn, self._turnNum):
                     print("unable to save ", col, "@ ", row_num, col_num)
         print("Finished saving current board state")
 
@@ -543,17 +557,23 @@ class Chess:
         dataList = db.loadState(turnNumber)
         tempBoard = [[None for _ in range(8)] for _ in range(8)]
         for dataSet in dataList:
-            pieceName, col, row, column, turnNum = dataSet
+            pieceName, col, moved, row, column, turnNum = dataSet
             if pieceName == "O":
                 piece = pieces.Pawn(color = col)
+                if moved:
+                    piece.move()
             if pieceName == "B":
                 piece = pieces.Bishop(color = col)
             if pieceName == "N":
                 piece = pieces.Knight(color = col)
             if pieceName == "R":
                 piece = pieces.Rook(color = col)
+                if moved:
+                    piece.move()
             if pieceName == "K":
                 piece = pieces.King(color = col)
+                if moved:
+                    piece.move()
             if pieceName == "Q":
                 piece = pieces.Queen(color = col)
             tempBoard[row][column] = piece
@@ -563,6 +583,16 @@ class Chess:
 
     def delete_saves(self):
         db.clearState()
+
+    def board_to_string(self) -> str:
+        board = ""
+        for row in self._board:
+            for col in row:
+                if not col:
+                    board += "."
+                else:
+                    board += str(col)
+        return board
 
     @staticmethod
     def __out_of_bounds(bounds: tuple) -> bool:
