@@ -8,7 +8,7 @@ import sys
 # dimensions of board is usually always 8
 # need to know the length of the squares and something global to hold the images
 # and probably a set FPS for drawing
-_FULLWIDTH = 768
+_FULLWIDTH = 896
 _WIDTH = _HEIGHT = 512
 _DIMENSIONS = 8
 _SQLEN = _HEIGHT // _DIMENSIONS
@@ -232,7 +232,7 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
                     location = p.mouse.get_pos()
                     col,row = location
                     col = col // _SQLEN
-                    row = row // _SQLEN
+                    row = row // _SQLEN;
 
                     if selectedSquare == (row, col):
                         selectedSquare = ()
@@ -240,27 +240,30 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
                             moveClicks.clear()
                         if validMoves:
                             validMoves.clear()
-                    else:
+                    elif row < 8 and col < 8: # Only adds clicks that are on gameboard
                         selectedSquare = (row, col)
                         moveClicks.append(selectedSquare)
-
+                    else:
+                        continue
+                    
                     if len(moveClicks) == 1:
                         tx,ty = moveClicks[0]
-                        print("row:",tx,"col:",ty)
 
-                    if ty < 8:
-                        if game.get_board()[tx][ty] == None:
-                            selectedSquare = ()
-                            if moveClicks:
-                                moveClicks.clear()
-                            if validMoves:
-                                validMoves.clear()
-                        elif moveClicks:
-                            validMoves = game.valid_moves(moveClicks[0])
+#                    if ty < 8:		# Only checks clicks that are on gameboard
+                    if game.get_board()[tx][ty] == None:
+                        selectedSquare = ()
+                        if moveClicks:
+                            moveClicks.clear()
+                        if validMoves:
+                            validMoves.clear()
+                    elif moveClicks:
+                        validMoves = game.valid_moves(moveClicks[0])
 
                         print(f"Selected for movement: {selectedSquare}")
 
                     if len(moveClicks) == 2:
+                        if ty > 8:
+                            print(ty, "too big\n\n")
                         state = movePiece(game,moveClicks)
                         selectedSquare = ()
                         moveClicks.clear()
@@ -268,6 +271,7 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
 
         if _IN_GAME:
             drawChessGame(screen, game, moveClicks, validMoves) 
+            InGameMenu(screen,clock)
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                 drawChessEndgame(screen, clock, game, state)
             # p.display.set_mode((_WIDTH-256, _HEIGHT))
@@ -368,10 +372,16 @@ def drawButton(screen, color, ren, button):
 
 # MENUS -------------------------------------------------------------------------------------------
 
-def IngameMenu(screen, clock):
+def InGameMenu(screen, clock):
     """ ()-> None
     this function draws the in-game menu system to interact with
     """
+    infoscreen = p.Surface((384,386))
+    infoscreen.fill(p.Color(240,234,214))
+    menuscreen = p.Surface((384,130))
+    menuscreen.fill(p.Color(255,204,203))
+    screen.blit(infoscreen,(512,0))
+    screen.blit(menuscreen,(512,386))
     pass
 
 
@@ -404,7 +414,7 @@ def MainMenu(screen, clock):
                     x,y = p.mouse.get_pos()
                     if play_button.collidepoint((x,y)):
                         print("Starting New Game")
-                        ChessGame(p.display.set_mode((_WIDTH, _HEIGHT)),clock) # _FULLWIDTH
+                        ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock) # _FULLWIDTH
                     #if multi_button.collidepoint((x,y)):
                     #    print("Starting Multiplayer Session")
                     #    ChessGame(screen,clock, multiplayer = True)
