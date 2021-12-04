@@ -16,5 +16,6 @@ class GameState(Enum):
     BLACK_CHECKMATED = auto()
     WHITE_IN_CHECK = auto()
     BLACK_IN_CHECK = auto()
+    PROMOTION = auto()
     NORMAL = auto()
 
