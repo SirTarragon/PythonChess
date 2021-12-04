@@ -177,7 +177,7 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
                     if rematch_button.collidepoint((x,y)):
                         print("Starting New Game")
                         if player == 1:
-                            SinglePlayerChessGame(screen,clock)
+                            ChessGame(screen,clock,aimode=True)
                         if player == 2:
                             ChessGame(screen,clock)
                     if menu_button.collidepoint((x,y)):
@@ -199,7 +199,7 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
 
-def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: bool = False):
+def ChessGame(screen, clock, turn: int = None, aimode: bool = True, player: bool = False, secondplayer: bool = False, load: bool = False, multiplayer: bool = False):
     """ ()-> None
     this is the core process for the ChessGame
     """
@@ -213,7 +213,6 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
     else:
       game.delete_saves()
     session = True
-    arrowsPointFlag = False
     _IN_GAME = True
 
     selectedSquare = ()     # need something to hold the selected spot on the GUI
@@ -222,101 +221,17 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
     state = None
     location = None
 
+    if aimode:
+      # Computer Player Movement
+      random.seed(datetime.now())
+      CPU_Pieces = []
+      validCPUMoves = []
+      captureMoves = []
+      select = ()
+         
     # game loop
     while session:
-        for event in p.event.get():
-            if event.type == p.QUIT:
-                p.quit()
-                sys.exit()
-            elif event.type == p.KEYDOWN:
-                if event.key == p.K_ESCAPE:
-#                    _IN_GAME = not _IN_GAME
-                    _ON_MENU = not _ON_MENU
-            elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
-                if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
-                    location = p.mouse.get_pos()
-                    col,row = location
-                    col = col // _SQLEN
-                    row = row // _SQLEN;
-
-                    if selectedSquare == (row, col):
-                        selectedSquare = ()
-                        if moveClicks:        # to prevent any heinous bugs due to empty list
-                            moveClicks.clear()
-                        if validMoves:
-                            validMoves.clear()
-                    elif row < 8 and col < 8: # Only adds clicks that are on gameboard
-                        selectedSquare = (row, col)
-                        moveClicks.append(selectedSquare)
-                    else:
-                        continue
-                    
-                    if len(moveClicks) == 1:
-                        tx,ty = moveClicks[0]
-
-#                    if ty < 8:		# Only checks clicks that are on gameboard
-                    if game.get_board()[tx][ty] == None:
-                        selectedSquare = ()
-                        if moveClicks:
-                            moveClicks.clear()
-                        if validMoves:
-                            validMoves.clear()
-                    elif moveClicks:
-                        validMoves = game.valid_moves(moveClicks[0])
-
-                        print(f"Selected for movement: {selectedSquare}")
-
-                    if len(moveClicks) == 2:
-                        state = movePiece(game,moveClicks)
-                        selectedSquare = ()
-                        moveClicks.clear()
-                        validMoves.clear()
-
-        if _IN_GAME:
-            drawChessGame(screen, game, moveClicks, validMoves) 
-            InGameMenu(screen, clock, game._turn)
-            if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
-                drawChessEndgame(screen, clock, game, state, 2)
-            # p.display.set_mode((_WIDTH-256, _HEIGHT))
-#        elif _ON_MENU:
-#            IngameMenu(screen, clock)
-        clock.tick(_MINFPS)
-        p.display.flip()    # updates the screen
-        
-
-def SinglePlayerChessGame(screen, clock, turn: int = None, load: bool = False, player: bool = False):
-    """
-    #()-> None
-    #this is the CPU process for the ChessGame
-    """ 
-    screen.fill(p.Color("white"))
-    loadChessImages()
-    p.display.set_caption("Chess")
-    p.display.set_icon(_IMAGES['brook'])
-    game = chess.Chess()    # need to initialize the game by calling the class
-    if load:
-      game.load_board(turn)
-    else:
-      game.delete_saves()
-    session = True
-    arrowsPointFlag = False
-    _IN_GAME = True
-
-    selectedSquare = ()     # need something to hold the selected spot on the GUI
-    moveClicks = []       # need to keep track of the player clicks
-    validMoves = []
-    state = None
-    
-    # Computer Player Movement
-    random.seed(datetime.now())
-    CPU_Pieces = []
-    validCPUMoves = []
-    captureMoves = []
-    test = []
-    select = ()
-         
-    while session:
-        if game._turn != player:
+        if aimode and game.get_turn() != player:
             board = game.get_board() # Get updated board before each turn
             
             if _IN_GAME and not select:
@@ -399,69 +314,66 @@ def SinglePlayerChessGame(screen, clock, turn: int = None, load: bool = False, p
                 validCPUMoves.clear()
                 captureMoves.clear()
                 CPU_Pieces.clear()
-        
-    # Human Player Game Loop
-        while game._turn == player:
-            for event in p.event.get():
-                if event.type == p.QUIT:
-                    p.quit()
-                    sys.exit()
-                elif event.type == p.KEYDOWN:
-                    if event.key == p.K_ESCAPE:
-#                        _IN_GAME = not _IN_GAME
-                        _ON_MENU = not _ON_MENU
-                elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
-                    if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
-                        location = p.mouse.get_pos()
-                        col,row = location
-                        col = col // _SQLEN
-                        row = row // _SQLEN;
 
-                        if selectedSquare == (row, col):
-                            selectedSquare = ()
-                            if moveClicks:        # to prevent any heinous bugs due to empty list
-                                moveClicks.clear()
-                            if validMoves:
-                                validMoves.clear()
-                        elif row < 8 and col < 8: # Only adds clicks that are on gameboard
-                            selectedSquare = (row, col)
-                            moveClicks.append(selectedSquare)
-                        else:
-                            continue
-                        
-                        if len(moveClicks) == 1:
-                            tx,ty = moveClicks[0]
-    
-#                        if ty < 8:		# Only checks clicks that are on gameboard
-                        if game.get_board()[tx][ty] == None:
-                            selectedSquare = ()
-                            if moveClicks:
-                                moveClicks.clear()
-                            if validMoves:
-                                validMoves.clear()
-                        elif moveClicks:
-                            validMoves = game.valid_moves(moveClicks[0])
-    
-                            print(f"Selected for movement: {selectedSquare}")
-    
-                        if len(moveClicks) == 2:
-                            state = movePiece(game,moveClicks)
-                            selectedSquare = ()
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                sys.exit()
+            elif event.type == p.KEYDOWN:
+                if event.key == p.K_ESCAPE:
+#                    _IN_GAME = not _IN_GAME
+                    _ON_MENU = not _ON_MENU
+            elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
+                if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
+                    location = p.mouse.get_pos()
+                    col,row = location
+                    col = col // _SQLEN
+                    row = row // _SQLEN;
+
+                    if selectedSquare == (row, col):
+                        selectedSquare = ()
+                        if moveClicks:        # to prevent any heinous bugs due to empty list
                             moveClicks.clear()
+                        if validMoves:
                             validMoves.clear()
-    
-            if _IN_GAME:
-                drawChessGame(screen, game, moveClicks, validMoves) 
-                InGameMenu(screen, clock, game._turn)
-                if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
-                    drawChessEndgame(screen, clock, game, state)
-                
+                    elif row < 8 and col < 8: # Only adds clicks that are on gameboard
+                        selectedSquare = (row, col)
+                        moveClicks.append(selectedSquare)
+                    else:
+                        continue
+                    
+                    if len(moveClicks) == 1:
+                        tx,ty = moveClicks[0]
+
+#                    if ty < 8:		# Only checks clicks that are on gameboard
+                    if game.get_board()[tx][ty] == None:
+                        selectedSquare = ()
+                        if moveClicks:
+                            moveClicks.clear()
+                        if validMoves:
+                            validMoves.clear()
+                    elif moveClicks:
+                        validMoves = game.valid_moves(moveClicks[0])
+
+                        print(f"Selected for movement: {selectedSquare}")
+
+                    if len(moveClicks) == 2:
+                        state = movePiece(game,moveClicks)
+                        selectedSquare = ()
+                        moveClicks.clear()
+                        validMoves.clear()
+
+        if _IN_GAME:
+            drawChessGame(screen, game, moveClicks, validMoves) 
+            InGameMenu(screen, clock, game._turn)
+            if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
+                drawChessEndgame(screen, clock, game, state, 2)
+            # p.display.set_mode((_WIDTH-256, _HEIGHT))
 #        elif _ON_MENU:
 #            IngameMenu(screen, clock)
-            clock.tick(_MINFPS)
-            p.display.flip()    # updates the screen
-
-
+        clock.tick(_MINFPS)
+        p.display.flip()    # updates the screen
+        
 # MENU UTILITIES ----------------------------------------------------------------------------------
 
 def drawButton(screen, color, ren, button):
@@ -525,10 +437,11 @@ def PlayerOptionMenu(screen, clock):
                     x,y = p.mouse.get_pos()
                     if white_button.collidepoint((x,y)):
                         print("Player is White")
-                        SinglePlayerChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,None,False,True)
+                        #screen, clock, turn: int = None, load: bool = False, player: bool = False
+                        ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,aimode = True,load = False,player = True)
                     if black_button.collidepoint((x,y)):
                         print("Player is Black")
-                        SinglePlayerChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,None,False,False)
+                        ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,aimode = True,load = False,player = False)
                     if back_button.collidepoint((x,y)):
                         print("Back to Main Menu")
                         MainMenu(screen,clock)
@@ -543,6 +456,8 @@ def PlayerOptionMenu(screen, clock):
         clock.tick(_MINFPS)
         p.display.update()
     
+def playMenuOptions():
+    # draws the options between singleplayer against AI vs another player on a local machine
 
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
@@ -586,7 +501,7 @@ def MainMenu(screen, clock):
                     if load_button.collidepoint((x,y)):
                         print("Loading Previous Session")
                         inturn = int(input("Input Turn Number : "))
-                        ChessGame(screen,clock, turn = inturn, load = True)
+                        ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock, turn = inturn, load = True)
                     if quit_button.collidepoint((x,y)):
                         print("Quitting...")
                         p.quit()
