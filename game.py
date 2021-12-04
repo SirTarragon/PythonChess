@@ -8,9 +8,8 @@ import sys
 # dimensions of board is usually always 8
 # need to know the length of the squares and something global to hold the images
 # and probably a set FPS for drawing
-
-_WIDTH = 640 # Allow room for side bar when in game
-_HEIGHT = 512
+_FULLWIDTH = 768
+_WIDTH = _HEIGHT = 512
 _DIMENSIONS = 8
 _SQLEN = _HEIGHT // _DIMENSIONS
 _IMAGES = {}    # dictionary/hashmap. For quick image lookup
@@ -55,6 +54,7 @@ def drawChessGame(screen, game, playerMovement: list, validMoves: list = None):
         for validMove in validMoves:
           highlightPieceMovement(screen, game, colors, validMove, True)
     drawChessPieces(screen, board)
+    #drawInGameMenu(screen, board)
 
 def drawCheckeredBoard(screen, colors: list):
     """ ()-> None
@@ -136,8 +136,7 @@ def movePiece(game, playerMovement):
 
     if board[x1][y1] != None:
         state = game.attempt_move((x1,y1),(x2,y2))
-        if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
-            drawChessEndgame(screen, clock, game, state)
+        return state
         #game.__move_piece((x1,y1),(x2,y2))
 
 def drawChessEndgame(screen, clock, game, result):
@@ -179,7 +178,7 @@ def drawChessEndgame(screen, clock, game, result):
                         ChessGame(screen,clock)
                     if menu_button.collidepoint((x,y)):
                         print("Loading Main Menu")
-                        MainMenu(screen, clock)
+                        MainMenu(p.display.set_mode((_WIDTH, _HEIGHT)), clock)
                     if quit_button.collidepoint((x,y)):
                         print("Quitting...")
                         p.quit()
@@ -199,6 +198,90 @@ def drawChessEndgame(screen, clock, game, result):
 def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: bool = False):
     """ ()-> None
     this is the core process for the ChessGame
+    """
+    screen.fill(p.Color("white"))
+    loadChessImages()
+    p.display.set_caption("Chess")
+    p.display.set_icon(_IMAGES['brook'])
+    game = chess.Chess()    # need to initialize the game by calling the class
+    if load:
+      game.load_board(turn)
+    else:
+      game.delete_saves()
+    session = True
+    arrowsPointFlag = False
+    _IN_GAME = True
+
+    selectedSquare = ()     # need something to hold the selected spot on the GUI
+    moveClicks = []       # need to keep track of the player clicks
+    validMoves = []
+    state = None
+
+    # game loop
+    while session:
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                sys.exit()
+            elif event.type == p.KEYDOWN:
+                if event.key == p.K_ESCAPE:
+#                    _IN_GAME = not _IN_GAME
+                    _ON_MENU = not _ON_MENU
+            elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
+                if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
+                    location = p.mouse.get_pos()
+                    col,row = location
+                    col = col // _SQLEN
+                    row = row // _SQLEN
+
+                    if selectedSquare == (row, col):
+                        selectedSquare = ()
+                        if moveClicks:        # to prevent any heinous bugs due to empty list
+                            moveClicks.clear()
+                        if validMoves:
+                            validMoves.clear()
+                    else:
+                        selectedSquare = (row, col)
+                        moveClicks.append(selectedSquare)
+
+                    if len(moveClicks) == 1:
+                        tx,ty = moveClicks[0]
+                        print("row:",tx,"col:",ty)
+
+                    if ty < 8:
+                        if game.get_board()[tx][ty] == None:
+                            selectedSquare = ()
+                            if moveClicks:
+                                moveClicks.clear()
+                            if validMoves:
+                                validMoves.clear()
+                        elif moveClicks:
+                            validMoves = game.valid_moves(moveClicks[0])
+
+                        print(f"Selected for movement: {selectedSquare}")
+
+                    if len(moveClicks) == 2:
+                        state = movePiece(game,moveClicks)
+                        selectedSquare = ()
+                        moveClicks.clear()
+                        validMoves.clear()
+
+        if _IN_GAME:
+            drawChessGame(screen, game, moveClicks, validMoves) 
+            if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
+                drawChessEndgame(screen, clock, game, state)
+            # p.display.set_mode((_WIDTH-256, _HEIGHT))
+#        elif _ON_MENU:
+#            IngameMenu(screen, clock)
+        clock.tick(_MINFPS)
+        p.display.flip()    # updates the screen
+        
+    """
+    def SinglePlayerChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: bool = False):
+    #()-> None
+    #this is the core process for the ChessGame
+    """ 
+
     """
     screen.fill(p.Color("white"))
     loadChessImages()
@@ -264,11 +347,17 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
                         validMoves.clear()
 
         if _IN_GAME:
-            drawChessGame(screen, game, moveClicks, validMoves)
+            #iscreen = p.Surface((256,512))
+            #iscreen.fill(p.Color("blue"))
+            #screen.blit(iscreen,(512,0))
+
+            drawChessGame(p.display.set_mode((_WIDTH, _HEIGHT)), game, moveClicks, validMoves) # just screen
 #        elif _ON_MENU:
 #            IngameMenu(screen, clock)
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
+
+"""
 
 # MENU UTILITIES ----------------------------------------------------------------------------------
 
@@ -315,7 +404,7 @@ def MainMenu(screen, clock):
                     x,y = p.mouse.get_pos()
                     if play_button.collidepoint((x,y)):
                         print("Starting New Game")
-                        ChessGame(p.display.set_mode((_WIDTH-128, _HEIGHT)),clock)
+                        ChessGame(p.display.set_mode((_WIDTH, _HEIGHT)),clock) # _FULLWIDTH
                     #if multi_button.collidepoint((x,y)):
                     #    print("Starting Multiplayer Session")
                     #    ChessGame(screen,clock, multiplayer = True)
