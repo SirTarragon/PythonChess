@@ -148,14 +148,14 @@ def drawChessEndgame(screen, clock, game, result):
     if result == "BLACK_CHECKMATED":
         result = "WHITE WINS!" 
 
-    count = 130
-    result_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
+    count = 0
+    result_button = p.Rect(_SQLEN * 8, count, _SQLEN * 6, 50)
+    count += 185
+    rematch_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
     count += 55
-    rematch_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
+    menu_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
     count += 55
-    menu_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
-    count += 55
-    quit_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
+    quit_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
 
     font = p.font.SysFont('Arial', 25)
     rematch = font.render("Rematch?", True, p.Color("white"))
@@ -216,6 +216,7 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
     moveClicks = []       # need to keep track of the player clicks
     validMoves = []
     state = None
+    location = None
 
     # game loop
     while session:
@@ -271,7 +272,7 @@ def ChessGame(screen, clock, turn: int = None, load: bool = False, multiplayer: 
 
         if _IN_GAME:
             drawChessGame(screen, game, moveClicks, validMoves) 
-            InGameMenu(screen,clock)
+            InGameMenu(screen, clock, location)
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                 drawChessEndgame(screen, clock, game, state)
             # p.display.set_mode((_WIDTH-256, _HEIGHT))
@@ -372,18 +373,25 @@ def drawButton(screen, color, ren, button):
 
 # MENUS -------------------------------------------------------------------------------------------
 
-def InGameMenu(screen, clock):
+def InGameMenu(screen, clock, click):
     """ ()-> None
     this function draws the in-game menu system to interact with
     """
-    infoscreen = p.Surface((384,386))
+    infoscreen = p.Surface((384,384))
     infoscreen.fill(p.Color(240,234,214))
-    menuscreen = p.Surface((384,130))
+    menuscreen = p.Surface((384,128))
     menuscreen.fill(p.Color(255,204,203))
     screen.blit(infoscreen,(512,0))
-    screen.blit(menuscreen,(512,386))
-    pass
-
+    screen.blit(menuscreen,(512,384))
+    
+    count = 416
+    quit_button = p.Rect(_SQLEN * 8 + 5, count, _SQLEN * 3 - 10, 50)
+    save_button = p.Rect(_SQLEN * 11 + 5, count, _SQLEN * 3 - 10, 50)
+    font = p.font.SysFont('Arial', 25)
+    quit = font.render("Quit", True, p.Color("white"))
+    save = font.render("Save", True, p.Color("white"))
+    drawButton(screen, "red", quit, quit_button)
+    drawButton(screen, "red", save, save_button)
 
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
@@ -397,7 +405,7 @@ def MainMenu(screen, clock):
     quit_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
 
     font = p.font.SysFont('Arial', 25)
-    play = font.render("Play New Game", True, p.Color("white"))
+    play = font.render("New Game", True, p.Color("white"))
     #multi = font.render("Play Multiplayer", True, p.Color("white"))
     load = font.render("Load Previous", True, p.Color("white"))
     quit = font.render("Quit", True, p.Color("white"))
