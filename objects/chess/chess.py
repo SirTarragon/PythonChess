@@ -374,6 +374,8 @@ class Chess:
             self._game_state = State.WHITE_IN_CHECK
         elif self.__in_check(False):
             self._game_state = State.BLACK_IN_CHECK
+        elif piece_type == Type.PAWN and row2 = 0 or row2 == 7:
+            self._game_state = PROMOTION
         else:
             self._game_state = State.NORMAL
         print("Result state: ", self._game_state.name)
