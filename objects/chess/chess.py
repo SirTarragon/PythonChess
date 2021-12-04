@@ -317,7 +317,22 @@ class Chess:
                     
             self._castle = True
             return self.__check_for_check(to_move,move_to)
+          
+    def promote(self, move_to: tuple, piece):
+        x,y = move_to
+        print(move_to, piece)
+        
+        if piece == "ROOK":
+            self._board[x][y] = pieces.Rook(not self._turn)
+        if piece == "KNIGHT":
+            self._board[x][y] = pieces.Knight(not self._turn)
+        if piece == "BISHOP":
+            self._board[x][y] = pieces.Bishop(not self._turn)
+        if piece == "QUEEN":
+            self._board[x][y] = pieces.Queen(not self._turn)
             
+        self._game_state = State.NORMAL
+        return self._game_state.name            
 
     def __move_piece(self, to_move: tuple, move_to: tuple):
         # Assumes to_move can move to move_to
@@ -384,7 +399,7 @@ class Chess:
             self._game_state = State.WHITE_IN_CHECK
         elif self.__in_check(False):
             self._game_state = State.BLACK_IN_CHECK
-        elif piece_type == Type.PAWN and row2 == 0 or row2 == 7:
+        elif piece_type == Type.PAWN and (row2 == 0 or row2 == 7):
             self._game_state = State.PROMOTION
         else:
             self._game_state = State.NORMAL
