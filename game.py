@@ -257,7 +257,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
     while session:
         turnText = "white" if game._turn else "black"
         turnFill = "white" if not game._turn else "black"
-        turn_button = p.Rect(_SQLEN * 8, 0, _SQLEN * 6, 30)
+        turn_label = p.Rect(_SQLEN * 8, 0, _SQLEN * 6, 30)
         turn = font.render("White Turn" if game._turn else "Black Turn", True, p.Color(turnText))
         
         if aimode and game.get_turn() != player:
@@ -407,7 +407,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
         screen.blit(menu,(512,384))
         drawButton(screen, "red", quit, quit_button)
         drawButton(screen, "red", save, save_button)
-        drawButton(screen, turnFill, turn, turn_button)
+        drawButton(screen, turnFill, turn, turn_label)
         
         clock.tick(_MINFPS)
         p.display.flip()    # updates the screen
