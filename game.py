@@ -3,7 +3,6 @@ from datetime import datetime
 import random
 import pygame as p
 import client as cl
-import math
 import sys
 
 # knowing the width and height (pixel count/area of screen)
@@ -166,7 +165,9 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
     
     button_color = p.Color("black")
     
-    while True:
+    session = True
+
+    while session:
         for event in p.event.get():
             if event.type == p.QUIT:
                 p.quit()
@@ -177,14 +178,18 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
                     if rematch_button.collidepoint((x,y)):
                         print("Starting New Game")
                         if player == 1:
+                            session = False
                             ChessGame(screen,clock,aimode=True)
                         if player == 2:
+                            session = False
                             ChessGame(screen,clock)
                     if menu_button.collidepoint((x,y)):
                         print("Loading Main Menu")
+                        session = False
                         MainMenu(p.display.set_mode((_WIDTH, _HEIGHT)), clock)
                     if quit_button.collidepoint((x,y)):
                         print("Quitting...")
+                        session = False
                         p.quit()
                         sys.exit()
                         
@@ -199,7 +204,7 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
 
-def ChessGame(screen, clock, turn: int = None, aimode: bool = True, player: bool = False, secondplayer: bool = False, load: bool = False, multiplayer: bool = False):
+def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: bool = False, secondplayer: bool = False, load: bool = False, multiplayer: bool = False):
     info = p.Surface((384,384))
     info.fill(p.Color((240, 234, 214))) # (240, 234, 214)
     menu = p.Surface((384,128))
@@ -337,10 +342,6 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = True, player: bool
             if event.type == p.QUIT:
                 p.quit()
                 sys.exit()
-            elif event.type == p.KEYDOWN:
-                if event.key == p.K_ESCAPE:
-#                    _IN_GAME = not _IN_GAME
-                    _ON_MENU = not _ON_MENU
             elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
                 if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
                     location = p.mouse.get_pos()
@@ -351,6 +352,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = True, player: bool
                     if row > 8 or col > 8:
                        if quit_button.collidepoint((location[0],location[1])):
                             print("Leaving game early at turn:",game._turnNum)
+                            session = False
                             MainMenu(p.display.set_mode((_WIDTH, _HEIGHT)),clock)
                             
                     if selectedSquare == (row, col):
@@ -441,23 +443,36 @@ def InGameMenu(screen, clock, _turn):
     drawButton(screen, "red", quit, quit_button)
     drawButton(screen, "red", save, save_button)
     drawButton(screen, turnFill, turn, turn_button)
+
+    return save_button, quit_button
     
-def PlayerOptionMenu(screen, clock):
+def PlayerOptionMenu(screen, clock, mode: bool = False):
     """ ()-> None
     this function draws the in-game menu system to interact with
     """    
-    choice_button = p.Rect(_SQLEN, 150, _SQLEN * 6, 50)
-    white_button = p.Rect(_SQLEN * 2, 205, _SQLEN * 4, 50)
-    black_button = p.Rect(_SQLEN * 2, 260, _SQLEN * 4, 50)
+    choice_label = p.Rect(_SQLEN, 150, _SQLEN * 6, 50)
+    option1_button = p.Rect(_SQLEN * 2, 205, _SQLEN * 4, 50)
+    option2_button = p.Rect(_SQLEN * 2, 260, _SQLEN * 4, 50)
     back_button = p.Rect(_SQLEN * 2, 315, _SQLEN * 4, 50)
 
     font = p.font.SysFont('Arial', 25)
-    choice = font.render("Choose color to control", True, p.Color("white"))
-    white = font.render("White", True, p.Color("white"))
-    black = font.render("Black", True, p.Color("white"))
+    
+    if mode:
+      choice_text = "Two-player Local Device or Online"
+      option1_text = "Local"
+      option2_text = "Online"
+    else:
+      choice_text = "Choose color to control"
+      option1_text = "White"
+      option2_text = "Black"
+    choice = font.render(choice_text, True, p.Color("white"))
+    option1 = font.render(option1_text, True, p.Color("white"))
+    option2 = font.render(option2_text, True, p.Color("white"))
     back = font.render("Main Menu", True, p.Color("white"))
 
-    while True:
+    session = True
+
+    while session:
         for event in p.event.get():
             if event.type == p.QUIT:
                 p.quit()
@@ -465,53 +480,58 @@ def PlayerOptionMenu(screen, clock):
             if event.type == p.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x,y = p.mouse.get_pos()
-                    if white_button.collidepoint((x,y)):
-                        print("Player is White")
-                        #screen, clock, turn: int = None, load: bool = False, player: bool = False
-                        ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,aimode = True,load = False,player = True)
-                    if black_button.collidepoint((x,y)):
-                        print("Player is Black")
-                        ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,aimode = True,load = False,player = False)
+                    if option1_button.collidepoint((x,y)):
+                        if mode:
+                            session = False
+                            print("Starting local session")
+                            ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,load = False)
+                        else:
+                            session = False
+                            print("Player is White")
+                            ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,aimode = True,load = False,player = True)
+                    if option2_button.collidepoint((x,y)):
+                        if mode:
+                            print("Starting Online...")
+                        else:
+                            session = False
+                            print("Player is Black")
+                            ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,aimode = True,load = False,player = False)
                     if back_button.collidepoint((x,y)):
-                        print("Back to Main Menu")
-                        MainMenu(screen,clock)
+                          session = False
+                          print("Back to Main Menu")
+                          MainMenu(screen,clock)
     
         screen.fill(p.Color("gray"))
         
-        drawButton(screen, "black", choice, choice_button)
-        drawButton(screen, "red", white, white_button)
-        drawButton(screen, "red", black, black_button)
+        drawButton(screen, "black", choice, choice_label)
+        drawButton(screen, "red", option1, option1_button)
+        drawButton(screen, "red", option2, option2_button)
         drawButton(screen, "red", back, back_button)
     
         clock.tick(_MINFPS)
         p.display.update()
-    
-def playMenuOptions():
-    # draws the options between singleplayer against AI vs another player on a local machine
 
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
     count = 100
-    single_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
-    count += 100
     play_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
-    #count += 100
-    #multi_button = p.Rect(_SQLEN * 2, 200, _SQLEN * 4, 50)
+    count += 100
+    multi_button = p.Rect(_SQLEN * 2, 200, _SQLEN * 4, 50)
     count += 100
     load_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
     count += 100
     quit_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
 
     font = p.font.SysFont('Arial', 25)
-    single = font.render("Single Player Game", True, p.Color("white"))
-    play = font.render("Two Player Game", True, p.Color("white"))
-    #multi = font.render("Play Multiplayer", True, p.Color("white"))
+    play = font.render("Single Player Game", True, p.Color("white"))
+    multi = font.render("Multiplayer", True, p.Color("white"))
     load = font.render("Load Previous", True, p.Color("white"))
     quit = font.render("Quit", True, p.Color("white"))
 
     button_color = p.Color("red")
+    session = True
 
-    while True:
+    while session:
         for event in p.event.get():
             if event.type == p.QUIT:
                 p.quit()
@@ -519,21 +539,22 @@ def MainMenu(screen, clock):
             if event.type == p.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x,y = p.mouse.get_pos()
-                    if single_button.collidepoint((x,y)):
-                        print("Selecting color to control")
-                        PlayerOptionMenu(screen,clock)
                     if play_button.collidepoint((x,y)):
-                        print("Starting New Two Player Game")
-                        ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock) # _FULLWIDTH
-                    #if multi_button.collidepoint((x,y)):
-                    #    print("Starting Multiplayer Session")
-                    #    ChessGame(screen,clock, multiplayer = True)
+                        print("Selecting color to control")
+                        session = False
+                        PlayerOptionMenu(screen,clock)
+                    if multi_button.collidepoint((x,y)):
+                        print("Selecting Multiplayer options")
+                        session = False
+                        PlayerOptionMenu(screen,clock,mode = True)
                     if load_button.collidepoint((x,y)):
                         print("Loading Previous Session")
+                        session = False
                         inturn = int(input("Input Turn Number : "))
                         ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock, turn = inturn, load = True)
                     if quit_button.collidepoint((x,y)):
                         print("Quitting...")
+                        session = False
                         p.quit()
                         sys.exit()
 
@@ -541,9 +562,8 @@ def MainMenu(screen, clock):
         #screen.blit(_IMAGES['mainmenu_background'], (0,0))
         screen.fill(p.Color("gray"))
 
-        drawButton(screen, button_color, single, single_button)
         drawButton(screen, button_color, play, play_button)
-        #drawButton(screen, button_color, multi, multi_button)
+        drawButton(screen, button_color, multi, multi_button)
         drawButton(screen, button_color, load, load_button)
         drawButton(screen, button_color, quit, quit_button)
 
