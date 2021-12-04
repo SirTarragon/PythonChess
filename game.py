@@ -139,6 +139,57 @@ def movePiece(game, playerMovement):
         state = game.attempt_move((x1,y1),(x2,y2))
         return state
         #game.__move_piece((x1,y1),(x2,y2))
+def promotePawn(screen, game, playerMovement):
+    print("Trying to promote piece at:",playerMovement)
+    board = game.get_board()
+    pieceType = None
+    
+    count = 100
+    rook_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
+    count += 55
+    knight_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
+    count += 55
+    bishop_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
+    count += 55
+    queen_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
+            
+    font = p.font.SysFont('Arial', 25)
+    rook= font.render("Rook", True, p.Color("white"))
+    knight = font.render("Knight", True, p.Color("white"))
+    bishop = font.render("Bishop", True, p.Color("white"))
+    queen = font.render("Queen", True, p.Color("white"))
+    
+    session = True
+    while session:
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                sys.exit()
+            if event.type == p.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    x,y = p.mouse.get_pos()
+                    if rook_button.collidepoint((x,y)):
+                        session = False
+                        pieceType = "ROOK"
+                    if knight_button.collidepoint((x,y)):
+                        session = False
+                        pieceType = "KNIGHT"
+                    if bishop_button.collidepoint((x,y)):
+                        session = False
+                        pieceType = "BISHOP"
+                    if queen_button.collidepoint((x,y)):
+                        session = False
+                        pieceType = "QUEEN"
+                        
+        drawButton(screen, "black", rook, rook_button)
+        drawButton(screen, "black", knight, knight_button)
+        drawButton(screen, "black", bishop, bishop_button)
+        drawButton(screen, "black", queen, queen_button)
+        
+        clock.tick(_MINFPS)
+        p.display.update()
+    
+    return game.promote(playerMovement, pieceType)
 
 def drawChessEndgame(screen, clock, game, result, player: int = 1):
     print(result)
@@ -237,6 +288,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
     _IN_GAME = True
 
     selectedSquare = ()     # need something to hold the selected spot on the GUI
+    promote = ()      # Used for promotion
     moveClicks = []       # need to keep track of the player clicks
     validMoves = []
     state = None
@@ -261,10 +313,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
             board = game.get_board() # Get updated board before each turn
             
             if _IN_GAME and not select:
-                drawChessGame(screen, game, moveClicks, validCPUMoves) 
-                # InGameMenu(screen, clock, game._turn)
-                if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
-                    drawChessEndgame(screen, clock, game, state)
+                drawChessGame(screen, game, moveClicks, validCPUMoves)
                     
             clock.tick(_MINFPS)
             p.display.flip()    # updates the screen
@@ -301,9 +350,6 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
             
             if _IN_GAME:
                 drawChessGame(screen, game, moveClicks, validCPUMoves) 
-                # InGameMenu(screen, clock, game._turn)
-                if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
-                    drawChessEndgame(screen, clock, game, state)
                     
             clock.tick(_MINFPS)
             p.display.flip()    # updates the screen
@@ -332,7 +378,13 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
             print("CPU chose move:", moveClicks[1])
             
             state = movePiece(game,moveClicks)
-
+            
+            if state == "PROMOTION":
+                x, y = moveClicks[1]
+                print("CPU promotes pawn to queen")
+                state = game.promote((x,y), "QUEEN")
+                promote = ()
+                
             if len(moveClicks) == 2:
                 selectedSquare = ()
                 select = ()
@@ -387,13 +439,14 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
 
                     if len(moveClicks) == 2:
                         state = movePiece(game,moveClicks)
+                        if state == "PROMOTION":
+                            promote = moveClicks[1]
                         selectedSquare = ()
                         moveClicks.clear()
                         validMoves.clear()
 
         if _IN_GAME:
             drawChessGame(screen, game, moveClicks, validMoves) 
-            # InGameMenu(screen, clock, game._turn)
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                 drawChessEndgame(screen, clock, game, state, 2)
             # p.display.set_mode((_WIDTH-256, _HEIGHT))
