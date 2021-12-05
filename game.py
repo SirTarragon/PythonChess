@@ -4,6 +4,7 @@ import random
 import pygame as p
 import client as cl
 import sys
+import time
 
 # knowing the width and height (pixel count/area of screen)
 # dimensions of board is usually always 8
@@ -267,6 +268,11 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
     p.display.set_caption("Chess")
     p.display.set_icon(_IMAGES['brook'])
     game = chess.Chess()    # need to initialize the game by calling the class
+    pt = 0 
+    client = None
+    if multiplayer:
+        client = cl.Client()
+        pt = client.color
     if load:
       game.load_board(turn)
     else:
@@ -327,7 +333,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
             x1, y1 = moveClicks[0]
             print("Computer chose:", str(board[x1][y1]), "at",selectedSquare)
             
-            cl.time.sleep(1) # Allows time to see CPU selected piece
+            time.sleep(1) # Allows time to see CPU selected piece
             
             captureMoves.clear() # To recieve movement of pieces that can capture
             
@@ -412,7 +418,13 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
                             print(f"Selected for movement: {selectedSquare}")
 
                         if len(moveClicks) == 2:
-                            state = movePiece(game,moveClicks)
+                            if multiplayer:
+                                if pt == 1 and game.get_turn():
+                                    state = movePiece(game, moveClicks)
+                                elif pt == 2 and game.get_turn():
+                                    state = movePiece(game, moveClicks)
+                            else:
+                                state = movePiece(game, moveClicks)
                             if state == "PROMOTION":
                                 promote = moveClicks[1]
                             selectedSquare = ()
@@ -420,13 +432,17 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
                             validMoves.clear()
 
           if _IN_GAME:
+            if multiplayer:
+                res = client.send(game.board_to_string())
+                if res and res != game.board_to_string():
+                    game.string_to_board(res)
             drawChessGame(screen, game, moveClicks, validMoves) 
             save_button, quit_button = InGameMenu(screen, clock, game.get_turn())
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                 drawChessEndgame(screen, clock, game, state, 2)
             # p.display.set_mode((_WIDTH-256, _HEIGHT))
-#        elif _ON_MENU:
-#            IngameMenu(screen, clock)
+    #        elif _ON_MENU:
+    #            IngameMenu(screen, clock)
           if state == "PROMOTION":
               state = promotePawn(screen, game, promote)
               promote = ()
@@ -519,7 +535,9 @@ def PlayerOptionMenu(screen, clock, mode: bool = False):
                             ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,aimode = True,load = False,player = True)
                     if option2_button.collidepoint((x,y)):
                         if mode:
+                            session = False
                             print("Starting Online...")
+                            ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,load = False, multiplayer=True)
                         else:
                             session = False
                             print("Player is Black")

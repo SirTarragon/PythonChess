@@ -39,12 +39,6 @@ class Chess:
         self._castle = False
         #self.save_board()
         
-    def __str__(self) -> str:
-        output = self.board_to_string()
-        output = output[:8] + "\n" + output[8:16] + "\n" + output[16:24] + \
-         "\n" + output[24:32] + "\n" + output[32:40] + "\n" + output[40:48] + \
-         "\n" + output[48:56] + "\n" + output[56:]
-        return output
         
     def attempt_move(self, to_move: tuple, move_to: tuple) -> State:
         """
@@ -613,8 +607,60 @@ class Chess:
                 if not col:
                     board += "."
                 else:
+                    pt = col.get_type()
                     board += str(col)
+                    board += "1" if col.is_white() else "2"
+                    if pt == Type.PAWN or pt == Type.KING or pt == Type.ROOK:
+                        if col.get_moved():
+                            board += "X"
+                        else:
+                            board += "Y"
         return board
+    
+    def string_to_board(self, conv: str) -> None:
+        board = [[None for _ in range(8)] for _ in range(8)]
+        i = x = 0
+        for z, let in enumerate(conv):
+            if let == "O":
+                col = True if conv[z+1] == "1" else False
+                piece = pieces.Pawn(color = col)
+                if conv[z+2] == "X":
+                    piece.move()
+                board[i][x] = piece
+            elif let == "B":
+                col = True if conv[z+1] == "1" else False
+                piece = pieces.Bishop(color = col)
+                board[i][x] = piece
+            elif let == "N":
+                col = True if conv[z+1] == "1" else False
+                piece = pieces.Knight(color = col)
+                board[i][x] = piece
+            elif let == "R":
+                col = True if conv[z+1] == "1" else False
+                piece = pieces.Rook(color = col)
+                if conv[z+2] == "X":
+                    piece.move()
+                board[i][x] = piece
+            elif let == "K":
+                col = True if conv[z+1] == "1" else False
+                piece = pieces.King(color = col)
+                if conv[z+2] == "X":
+                    piece.move()
+                board[i][x] = piece
+            elif let == "Q":
+                col = True if conv[z+1] == "1" else False
+                piece = pieces.Queen(color = col)
+                board[i][x] = piece
+            if let != "X" and let != "Y" and let != "1" and let != "2":
+                if x == 7:
+                    x = 0
+                    i += 1
+                else:
+                    x += 1
+        self._board = board
+        self._turnNum += 1
+        self._turn = not self._turn
+        self.save_board()
 
     @staticmethod
     def __out_of_bounds(bounds: tuple) -> bool:

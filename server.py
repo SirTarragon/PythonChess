@@ -1,3 +1,5 @@
+#This code is running on the server I set up, not designed to be run locally
+"""
 import socket
 from objects.chess.chess import Chess
 from _thread import *
@@ -62,3 +64,5 @@ while True:
     else:
         print("Game is full, rejecting connection")
         conn.close()
+
+"""
