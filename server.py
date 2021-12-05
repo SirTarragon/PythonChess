@@ -5,7 +5,7 @@ import socket
 try:
     import chess as Chess
 except ModuleNotFoundError:
-    from .import chess as Chess
+    from objects import chess as Chess
 from _thread import *
 import sys
 
@@ -38,10 +38,10 @@ def threaded_client(conn, num):
             print("Receiving from clt " +str(num)+": " + reply)
             if game.get_turn() and num == 1:
                 if data and reply and reply != game.board_to_string():
-                    game.string_to_board(reply)                
+                    game.string_to_board(reply)
             if num == 2 and not game.get_turn():
                 if data and reply and reply != game.board_to_string():
-                    game.string_to_board(reply)                
+                    game.string_to_board(reply)
 
             print("Sending to clt " + str(num) + ": " + reply)
 
