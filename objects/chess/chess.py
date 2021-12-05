@@ -609,49 +609,51 @@ class Chess:
                 else:
                     pt = col.get_type()
                     board += str(col)
-                    board += "1" if col.is_white() else "2"
+                    board += "W" if col.is_white() else "U"
                     if pt == Type.PAWN or pt == Type.KING or pt == Type.ROOK:
                         if col.get_moved():
                             board += "X"
                         else:
                             board += "Y"
+        board += str(self._turnNum)
         return board
     
     def string_to_board(self, conv: str) -> None:
         board = [[None for _ in range(8)] for _ in range(8)]
         i = x = 0
-        for z, let in enumerate(conv):
+        start = conv[:conv.find("Z")]
+        for z, let in enumerate(start):
             if let == "O":
-                col = True if conv[z+1] == "1" else False
+                col = True if start[z+1] == "W" else False
                 piece = pieces.Pawn(color = col)
-                if conv[z+2] == "X":
+                if start[z+2] == "X":
                     piece.move()
                 board[i][x] = piece
             elif let == "B":
-                col = True if conv[z+1] == "1" else False
+                col = True if start[z+1] == "W" else False
                 piece = pieces.Bishop(color = col)
                 board[i][x] = piece
             elif let == "N":
-                col = True if conv[z+1] == "1" else False
+                col = True if start[z+1] == "W" else False
                 piece = pieces.Knight(color = col)
                 board[i][x] = piece
             elif let == "R":
-                col = True if conv[z+1] == "1" else False
+                col = True if start[z+1] == "W" else False
                 piece = pieces.Rook(color = col)
-                if conv[z+2] == "X":
+                if start[z+2] == "X":
                     piece.move()
                 board[i][x] = piece
             elif let == "K":
-                col = True if conv[z+1] == "1" else False
+                col = True if start[z+1] == "W" else False
                 piece = pieces.King(color = col)
-                if conv[z+2] == "X":
+                if start[z+2] == "X":
                     piece.move()
                 board[i][x] = piece
             elif let == "Q":
-                col = True if conv[z+1] == "1" else False
+                col = True if start[z+1] == "W" else False
                 piece = pieces.Queen(color = col)
                 board[i][x] = piece
-            if let != "X" and let != "Y" and let != "1" and let != "2":
+            if let != "X" and let != "Y" and let != "W" and let != "U":
                 if x == 7:
                     x = 0
                     i += 1
