@@ -1,25 +1,23 @@
 import sqlite3
 from typing import List
 
-
-
 def createTable():
     connection = sqlite3.connect('pychess.db')
     cursor = connection.cursor()
     boardStateTableCreate = """
         CREATE TABLE IF NOT EXISTS
         BoardState(
-            piece CHAR(6) NOT NULL, 
+            piece CHAR(6) NOT NULL,
             color BOOLEAN,
-            moved BOOLEAN, 
-            row INTEGER, 
-            column INTEGER, 
+            moved BOOLEAN,
+            row INTEGER,
+            column INTEGER,
             turn BOOLEAN,
             turnNum INTEGER,
             PRIMARY KEY (row, column, turnNum)
             )
         """
-    cursor.execute(boardStateTableCreate)    
+    cursor.execute(boardStateTableCreate)
     cursor.close()
     connection.close()
 
@@ -64,6 +62,10 @@ def saveState(*args) -> bool:
         return True
 
 
+def deleteTurns(start: int, end: int) -> bool:
+    pass
+
+
 def clearState() -> bool:
     print("Clearing table")
     connection = sqlite3.connect('pychess.db')
@@ -81,6 +83,10 @@ def clearState() -> bool:
         cursor.close()
         connection.close()
         return True
+
+
+def getMaxTurnNum() -> int:
+    pass
 
 
 def printTable() -> None:

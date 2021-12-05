@@ -26,6 +26,7 @@ _IN_GAME = False
 _CHESSBOARD_COLORS = [p.Color("white"), p.Color("gray"), p.Color("red")]
 _DROUGHT_COLORS = [p.Color("red"), p.Color("gray"), p.Color("white")]
 
+
 def loadMenuImages():
     """ ()-> None
     this loads the image files correlated to the main menu. These images need to
@@ -34,6 +35,7 @@ def loadMenuImages():
     ims = ['mainmenu_bg', 'icon']
     for im in ims:
         _IMAGES[im] = p.image.load("resources/menu/" + im + ".png")
+
 
 def loadChessImages():
     """ ()-> None
@@ -46,6 +48,9 @@ def loadChessImages():
     ]
     for piece in pieces:
         _IMAGES[piece] = p.transform.scale(p.image.load("resources/chess/" + piece + ".png"), (_SQLEN, _SQLEN))
+
+
+# DRAW FUNCTIONS ---------------------------------------------------------------
 
 def drawChessGame(screen, game, playerMovement: list, validMoves: list = None):
     """ ()-> None
@@ -61,6 +66,7 @@ def drawChessGame(screen, game, playerMovement: list, validMoves: list = None):
           highlightPieceMovement(screen, game, colors, validMove, True)
     drawChessPieces(screen, board)
     #drawInGameMenu(screen, board)
+
 
 def drawCheckeredBoard(screen, colors: list):
     """ ()-> None
@@ -79,6 +85,7 @@ def drawCheckeredBoard(screen, colors: list):
         else:
             alter = True
 
+
 def highlightPieceMovement(screen, game, colors: list, selectedSquare: tuple, ignore: bool = False):
     """ ()-> None
     draws onto the screen based on the ChessGame the selected piece and
@@ -87,30 +94,31 @@ def highlightPieceMovement(screen, game, colors: list, selectedSquare: tuple, ig
     board = game.get_board()
     x,y = selectedSquare
     if board[x][y] != None or ignore:
-      alter = True
-      for r in range(_DIMENSIONS):
-        for c in range(_DIMENSIONS):
-          if r==x and c==y:
-            # red circle to highlight possible moves/selected piece
-            if not ignore:
-              p.draw.circle(screen, colors[2], (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2,2)
+        alter = True
+        for r in range(_DIMENSIONS):
+            for c in range(_DIMENSIONS):
+                if r==x and c==y:
+                    # red circle to highlight possible moves/selected piece
+                    if not ignore:
+                        p.draw.circle(screen, colors[2], (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2,2)
+                    else:
+                        p.draw.rect(screen, colors[2], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN],2)
+
+                    if alter: # taken from drawing the chessboard, decides the color inner circle color
+                        color = colors[0]
+                    else:
+                        color = colors[1]
+
+                    # inner circle should match background square
+                    if not ignore:
+                        p.draw.circle(screen, color, (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2.3)
+
+                alter = not alter
+            if r % 2 == 0:
+                alter = False
             else:
-              p.draw.rect(screen, colors[2], [_SQLEN*c, _SQLEN*r, _SQLEN, _SQLEN],2)
+                alter = True
 
-            if alter: # taken from drawing the chessboard, decides the color inner circle color
-              color = colors[0]
-            else:
-              color = colors[1]
-
-            # inner circle should match background square
-            if not ignore:
-              p.draw.circle(screen, color, (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2.3)
-
-          alter = not alter
-        if r % 2 == 0:
-          alter = False
-        else:
-          alter = True
 
 def drawChessPieces(screen, board):
     """ ()-> None
@@ -134,69 +142,11 @@ def drawChessPieces(screen, board):
                 # draw to the screen the piece, box it in as a rectangle
                 screen.blit(_IMAGES[lookup], p.Rect(col*_SQLEN, row*_SQLEN, _SQLEN, _SQLEN))
 
-def movePiece(game, playerMovement):
-    board = game.get_board()
-    x1,y1 = playerMovement[0]
-    x2,y2 = playerMovement[1]
-    print(playerMovement)
-
-    if board[x1][y1] != None:
-        state = game.attempt_move((x1,y1),(x2,y2))
-        return state
-        #game.__move_piece((x1,y1),(x2,y2))
-
-def promotePawn(screen, game, playerMovement):
-    print("Trying to promote piece at:", playerMovement)
-    pieceType = None
-
-    count = 100
-    rook_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
-    count += 55
-    knight_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
-    count += 55
-    bishop_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
-    count += 55
-    queen_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
-
-    font = p.font.SysFont('Arial', 25)
-    rook= font.render("Rook", True, p.Color("white"))
-    knight = font.render("Knight", True, p.Color("white"))
-    bishop = font.render("Bishop", True, p.Color("white"))
-    queen = font.render("Queen", True, p.Color("white"))
-
-    session = True
-    while session:
-        for event in p.event.get():
-            if event.type == p.QUIT:
-                p.quit()
-                sys.exit()
-            if event.type == p.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    x,y = p.mouse.get_pos()
-                    if rook_button.collidepoint((x,y)):
-                        session = False
-                        pieceType = "ROOK"
-                    if knight_button.collidepoint((x,y)):
-                        session = False
-                        pieceType = "KNIGHT"
-                    if bishop_button.collidepoint((x,y)):
-                        session = False
-                        pieceType = "BISHOP"
-                    if queen_button.collidepoint((x,y)):
-                        session = False
-                        pieceType = "QUEEN"
-
-        drawButton(screen, "black", rook, rook_button)
-        drawButton(screen, "black", knight, knight_button)
-        drawButton(screen, "black", bishop, bishop_button)
-        drawButton(screen, "black", queen, queen_button)
-
-        clock.tick(_MINFPS)
-        p.display.update()
-
-    return game.promote(playerMovement, pieceType)
 
 def drawChessEndgame(screen, clock, game, result, player: int = 1):
+    """ ()-> None
+    this function draws to the screen the pieces end results screen
+    """
     print(result)
     if result == "STALEMATE":
         result = "IT'S A TIE!"
@@ -252,6 +202,7 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
         info = p.Surface((384,512))
         info.fill(p.Color(240,234,214))
         screen.blit(info,(512,0))
+
         drawButton(screen, button_color, rematch, rematch_button)
         drawButton(screen, button_color, menu, menu_button)
         drawButton(screen, button_color, quit, quit_button)
@@ -259,6 +210,76 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
 
         clock.tick(_MINFPS)
         p.display.update()
+
+
+# PIECE MANIPULATION -----------------------------------------------------------
+
+def movePiece(game, playerMovement):
+    board = game.get_board()
+    x1,y1 = playerMovement[0]
+    x2,y2 = playerMovement[1]
+    print(playerMovement)
+
+    if board[x1][y1] != None:
+        #print("Before:\n" + str(game))
+        state = game.attempt_move((x1,y1),(x2,y2))
+        #print("After:\n" + str(game))
+        return state
+
+
+def promotePawn(screen, game, playerMovement):
+    print("Trying to promote piece at:", playerMovement)
+    pieceType = None
+
+    count = 100
+    rook_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
+    count += 55
+    knight_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
+    count += 55
+    bishop_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
+    count += 55
+    queen_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
+
+    font = p.font.SysFont('Arial', 25)
+    rook= font.render("Rook", True, p.Color("white"))
+    knight = font.render("Knight", True, p.Color("white"))
+    bishop = font.render("Bishop", True, p.Color("white"))
+    queen = font.render("Queen", True, p.Color("white"))
+
+    session = True
+    while session:
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                sys.exit()
+            if event.type == p.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    x,y = p.mouse.get_pos()
+                    if rook_button.collidepoint((x,y)):
+                        session = False
+                        pieceType = "ROOK"
+                    if knight_button.collidepoint((x,y)):
+                        session = False
+                        pieceType = "KNIGHT"
+                    if bishop_button.collidepoint((x,y)):
+                        session = False
+                        pieceType = "BISHOP"
+                    if queen_button.collidepoint((x,y)):
+                        session = False
+                        pieceType = "QUEEN"
+
+        drawButton(screen, "black", rook, rook_button)
+        drawButton(screen, "black", knight, knight_button)
+        drawButton(screen, "black", bishop, bishop_button)
+        drawButton(screen, "black", queen, queen_button)
+
+        clock.tick(_MINFPS)
+        p.display.update()
+
+    return game.promote(playerMovement, pieceType)
+
+
+# CORE GAME --------------------------------------------------------------------
 
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
@@ -280,18 +301,18 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
         pt = client.color
         print("Pt is ", pt)
     if load:
-      game.load_board(turn)
+        game.load_board(turn)
     else:
-      game.delete_saves()
+        game.delete_saves()
     session = True
     _IN_GAME = True
 
-    selectedSquare = ()     # need something to hold the selected spot on the GUI
-    promote = () # Used for promotion
-    moveClicks = []       # need to keep track of the player clicks
-    validMoves = []
-    state = None
-    location = None
+    selectedSquare = ()  # need something to hold the selected spot on the GUI
+    promote = ()         # Used for promotion
+    moveClicks = []      # need to keep track of the player clicks
+    validMoves = []      # used to hold valid moves
+    state = None         # gamestate
+    location = None      # mouse pointer location
 
     if aimode:
       # Computer Player Movement
@@ -302,7 +323,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
       select = ()
 
     drawChessGame(screen, game, moveClicks, validMoves)
-    save_button, quit_button = InGameMenu(screen, clock, game._turn)
+    quit_button = InGameMenu(screen, clock, game._turn)
 
     # game loop
     while session:
@@ -381,6 +402,16 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
           else:
             for event in p.event.get():
                 if event.type == p.QUIT:
+                    session = False
+                    if multiplayer:
+                        if pt == 1:
+                            state = game.resign(playerColor = True)
+                        elif pt == 2:
+                            state = game.resign(playerColor = False)
+                    elif secondplayer:
+                        state = game.resign(game.get_turn())
+                    else:
+                        state = game.resign(player)
                     p.quit()
                     sys.exit()
                 elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
@@ -388,12 +419,25 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
                         location = p.mouse.get_pos()
                         col,row = location
                         col = col // _SQLEN
-                        row = row // _SQLEN;
+                        row = row // _SQLEN
 
                         if row > 8 or col > 8:
                            if quit_button.collidepoint((location[0],location[1])):
                                 print("Leaving game early at turn:",game._turnNum)
                                 session = False
+                                if multiplayer:
+                                    if pt == 1:
+                                        state = game.resign(playerColor = True)
+                                    elif pt == 2:
+                                        state = game.resign(playerColor = False)
+                                    res = client.send(game.board_to_string())
+                                    print("res is: ", res)
+                                    if res and res != game.board_to_string():
+                                        game.string_to_board(res)
+                                elif secondplayer:
+                                    state = game.resign(game.get_turn())
+                                else:
+                                    state = game.resign(player)
                                 MainMenu(p.display.set_mode((_WIDTH, _HEIGHT)),clock)
 
                         if selectedSquare == (row, col):
@@ -437,8 +481,8 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
                             moveClicks.clear()
                             validMoves.clear()
           if state == "PROMOTION":
-              state = promotePawn(screen, game, promote)
-              promote = ()
+                state = promotePawn(screen, game, promote)
+                promote = ()
           if _IN_GAME:
             if multiplayer:
                 res = client.send(game.board_to_string())
@@ -447,7 +491,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
                     game.string_to_board(res)
                 print("TURN IS ", game._turn)
             drawChessGame(screen, game, moveClicks, validMoves)
-            save_button, quit_button = InGameMenu(screen, clock, game.get_turn())
+            quit_button = InGameMenu(screen, clock, game.get_turn())
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                 drawChessEndgame(screen, clock, game, state, 2)
             # p.display.set_mode((_WIDTH-256, _HEIGHT))
@@ -456,12 +500,14 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
           clock.tick(_MINFPS)
           p.display.flip()    # updates the screen
 
+
 # MENU UTILITIES ---------------------------------------------------------------
 
 def drawButton(screen, color, ren, button):
-    draw = p.draw.rect(screen, color, button)
-    loc = ren.get_rect(center = draw.center)
-    screen.blit(ren, loc)
+    draw = p.draw.rect(screen, color, button)   # creates rect object
+    loc = ren.get_rect(center = draw.center)    # gets the center
+    screen.blit(ren, loc)   # displays the text over button center
+
 
 # MENUS ------------------------------------------------------------------------
 
@@ -469,37 +515,40 @@ def InGameMenu(screen, clock, turn):
     """ ()-> None
     this function draws the in-game menu system to interact with
     """
-    turnText = "white" if turn else "black"
-    turnFill = "white" if not turn else "black"
-
     info = p.Surface((384,384))
     info.fill(p.Color(240,234,214))
     menu = p.Surface((384,128))
-    menu.fill(p.Color(255,204,203))
+    menu.fill("gray30")
     screen.blit(info,(512,0))
     screen.blit(menu,(512,384))
 
     count = 416
 
     turn_button = p.Rect(_SQLEN * 8, 0, _SQLEN * 6, 30)
-    quit_button = p.Rect(_SQLEN * 8 + 5, count, _SQLEN * 3 - 10, 50)
-    save_button = p.Rect(_SQLEN * 11 + 5, count, _SQLEN * 3 - 10, 50)
+    quit_button = p.Rect(_SQLEN * 8 + 100, count, _SQLEN * 3 - 10, 50)
+
+    turnText = "White" if turn else "Black"
+    turnFill = "black" if turn else "white"
 
     font = p.font.SysFont('Arial', 25)
     quit = font.render("Quit", True, p.Color("white"))
-    save = font.render("Save", True, p.Color("white"))
-    turn = font.render("White Turn" if turn else "Black Turn", True, p.Color(turnText))
+    turn = font.render(turnText + " Turn", True, p.Color(turnText.lower()))
 
     drawButton(screen, "red", quit, quit_button)
-    drawButton(screen, "red", save, save_button)
     drawButton(screen, turnFill, turn, turn_button)
 
-    return save_button, quit_button
+    return quit_button
+
 
 def PlayerOptionMenu(screen, clock, mode: bool = False):
     """ ()-> None
-    this function draws the in-game menu system to interact with
+    this function draws to the screen the option menu when the
+    singleplayer and multiplayer buttons are clicked. Singleplayer
+    shows up the color picker for the players, while multiplayer
+    displays local and online button prompts.
     """
+    # mode decides whether to show local/multiplayer options
+    # or color picker ones
     choice_label = p.Rect(_SQLEN, 150, _SQLEN * 6, 50)
     option1_button = p.Rect(_SQLEN * 2, 205, _SQLEN * 4, 50)
     option2_button = p.Rect(_SQLEN * 2, 260, _SQLEN * 4, 50)
@@ -508,13 +557,13 @@ def PlayerOptionMenu(screen, clock, mode: bool = False):
     font = p.font.SysFont('Arial', 25)
 
     if mode:
-      choice_text = "Two-player Local Device or Online"
-      option1_text = "Local"
-      option2_text = "Online"
+        choice_text = "Two-player Local Device or Online"
+        option1_text = "Local"
+        option2_text = "Online"
     else:
-      choice_text = "Choose color to control"
-      option1_text = "White"
-      option2_text = "Black"
+        choice_text = "Choose color to control"
+        option1_text = "White"
+        option2_text = "Black"
     choice = font.render(choice_text, True, p.Color("white"))
     option1 = font.render(option1_text, True, p.Color("white"))
     option2 = font.render(option2_text, True, p.Color("white"))
@@ -553,9 +602,9 @@ def PlayerOptionMenu(screen, clock, mode: bool = False):
                             print("Player is Black")
                             ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,aimode = True,load = False,player = False)
                     if back_button.collidepoint((x,y)):
-                          session = False
-                          print("Back to Main Menu")
-                          MainMenu(screen,clock)
+                            session = False
+                            print("Back to Main Menu")
+                            MainMenu(screen,clock)
 
         drawButton(screen, "black", choice, choice_label)
         drawButton(screen, "gray30", option1, option1_button)
@@ -564,6 +613,7 @@ def PlayerOptionMenu(screen, clock, mode: bool = False):
 
         clock.tick(_MINFPS)
         p.display.update()
+
 
 def LoadSaveMenu(screen, clock):
     input_label = p.Rect(_SQLEN, 150, _SQLEN * 6, 50)
@@ -584,16 +634,17 @@ def LoadSaveMenu(screen, clock):
             if event.type == p.QUIT:
                 p.quit()
             if event.type == p.MOUSEBUTTONDOWN:
-                # If the user clicked on the input_box rect.
+                # If the user clicked on the input box rect.
                 if input_label.collidepoint(event.pos):
                     # Toggle the active variable.
                     active = not active
-                    text = "|"
+                    text = "|"  # render the text prompt cursor
                     input_text = font.render(text, True, p.Color("white"))
                     text = text[:-1]
                 else:
                     active = False
 
+                # if the user clicked on the main menu button
                 if back_button.collidepoint(event.pos):
                     print("Main Menu")
                     session = False
@@ -609,26 +660,30 @@ def LoadSaveMenu(screen, clock):
                             session = False
                             ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock, turn = inturn, load = True)
                           except ValueError:
-                            text = ""
+                            text = ""   # user put in non integer, clear input
                     elif event.key == p.K_BACKSPACE:
                         text = text[:-1]
                     else:
                         text += event.unicode
-                    text += "|"
+                    text += "|" # render text prompt cursor
                     input_text = font.render(text, True, p.Color("white"))
                     text = text[:-1]
 
+        # draw the buttons
         drawButton(screen, "black", input_text, input_label)
         drawButton(screen, "gray30", back, back_button)
 
+        # update the full display
         p.display.flip()
+
 
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
-    loadMenuImages()
-    p.display.set_caption("Chess")
-    p.display.set_icon(_IMAGES['icon'])
+    loadMenuImages()        # load the relevant images
+    p.display.set_caption("Chess")  # caption the title as "Chess"
+    p.display.set_icon(_IMAGES['icon']) # set the icon
 
+    # create the Rect with a different top value based on the count
     count = 100
     play_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
     count += 100
@@ -638,44 +693,57 @@ def MainMenu(screen, clock):
     count += 100
     quit_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
 
+    # prepare the text for the buttons
     font = p.font.SysFont('Arial', 25)
     play = font.render("Single Player", True, p.Color("white"))
     multi = font.render("Multiplayer", True, p.Color("white"))
     load = font.render("Load Previous", True, p.Color("white"))
     quit = font.render("Quit", True, p.Color("white"))
 
+    # set the default button color
     button_color = p.Color("gray30")
     session = True
 
+    # load the background image
     screen.blit(_IMAGES['mainmenu_bg'], (0,0))
 
+    # menu loop
     while session:
         for event in p.event.get():
             if event.type == p.QUIT:
+                # if they press the x in the corner, forcibly quit
                 p.quit()
                 sys.exit()
             if event.type == p.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x,y = p.mouse.get_pos()
+
+                    # open the option menu with color focus
                     if play_button.collidepoint((x,y)):
                         print("Selecting color to control")
                         session = False
                         PlayerOptionMenu(screen,clock)
+
+                    # open the option menu with local/online focus
                     if multi_button.collidepoint((x,y)):
                         print("Selecting Multiplayer options")
                         session = False
                         PlayerOptionMenu(screen,clock,mode = True)
+
+                    # open the loadsavemenu
                     if load_button.collidepoint((x,y)):
                         print("Loading Previous Session")
                         session = False
                         LoadSaveMenu(screen, clock)
 
+                    # quit the program if quit button is clicked
                     if quit_button.collidepoint((x,y)):
                         print("Quitting...")
                         session = False
                         p.quit()
                         sys.exit()
 
+        # draw the main menu buttons
         drawButton(screen, button_color, play, play_button)
         drawButton(screen, button_color, multi, multi_button)
         drawButton(screen, button_color, load, load_button)

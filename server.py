@@ -1,11 +1,14 @@
 #Code in production on the server
-"""
-
 import socket
 try:
     import chess as Chess
 except ModuleNotFoundError:
-    from objects import chess as Chess
+    print("Chess not found in same directory as head file")
+    try:
+        from . import chess as Chess
+    except ModuleNotFoundError:
+        print("Chess not found in same directory")
+        from objects import chess as Chess
 from _thread import *
 import sys
 
@@ -27,6 +30,7 @@ print("Waiting for a connection")
 turnNum = 1
 players = [False, False]
 game = Chess.Chess()
+
 
 def threaded_client(conn, num):
     global turnNum, players, game
@@ -52,6 +56,7 @@ def threaded_client(conn, num):
     print("Connection Closed")
     conn.close()
 
+
 while True:
     conn, addr = s.accept()
     print("Connected to: ", addr)
@@ -66,4 +71,3 @@ while True:
     else:
         print("Game is full, rejecting connection")
         conn.close()
-"""

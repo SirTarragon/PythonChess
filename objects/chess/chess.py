@@ -22,11 +22,9 @@ from itertools import permutations
 # user calls valid_move on a square
 # valid move iterates over squares
 # using can_move to check if the piece can_move there
-#
 
 
 class Chess:
-    # TODO: add params to load a game, or function to load game
     def __init__(self) -> None:
         """
         Chess() -> initializes default chess game
@@ -40,9 +38,18 @@ class Chess:
         #self.save_board()
 
 
+    def __str__(self) -> str:
+        board = " 01234567\n"
+        for x in range(8):
+            board += str(x)
+            for y in range(8):
+                board += str("." if not self._board[x][y] else self._board[x][y])
+            board += "\n"
+        return board
+
+
     def attempt_move(self, to_move: tuple, move_to: tuple) -> State:
-        """
-        (tuple, tuple) -> State
+        """(to_move: tuple, move_to: tuple) -> State
         Takes 2 tuples of 2 ints each, [0-7], where the first tuple represents
         the location of a piece to move, and the 2nd tuple represents the
         location to move to.
@@ -75,8 +82,9 @@ class Chess:
 
         return self.__move_piece(to_move, move_to)
 
+
     def valid_moves(self, to_move: tuple) -> tuple:
-        """(tuple) -> tuple
+        """(to_move: tuple) -> tuple
         returns the tuple of tuples where each element is
         a (row, col) ([0-7],[0-7]), to which a piece may move
         If the move is 'possible' but results in check/checkmate, it will not
@@ -94,6 +102,37 @@ class Chess:
                     moves.append((i,x))
         return moves
 
+
+    def resign(self, playerColor: bool = False):
+        """(playerColor: bool)-> State.NAME
+        resigns the player of the current turn
+        """
+        self._game_state = State.WHITE_CHECKMATED if playerColor else State.BLACK_CHECKMATED
+        self._turnNum += 1
+        print("Player resigned, results of match: " + str(self._game_state))
+        return self._game_state.name
+
+
+    def promote(self, move_to: tuple, piece: str = "QUEEN"):
+        """(move_to: tuple, piece: str) -> State.NAME
+        upgrades a pawn to another unit. Queening is default.
+        """
+        x,y = move_to
+        print(move_to, piece)
+
+        if piece == "ROOK":
+            self._board[x][y] = pieces.Rook(not self._turn)
+        if piece == "KNIGHT":
+            self._board[x][y] = pieces.Knight(not self._turn)
+        if piece == "BISHOP":
+            self._board[x][y] = pieces.Bishop(not self._turn)
+        if piece == "QUEEN":
+            self._board[x][y] = pieces.Queen(not self._turn)
+        self._turnNum += 1
+        self._game_state = State.NORMAL
+        return self._game_state.name
+
+
     def get_board(self) -> List[List[pieces.Piece]]:
         """()-> List[List[pieces.Piece]]
         returns a deepcopy of the present board
@@ -104,17 +143,20 @@ class Chess:
         # will really affect us here, I'd just be curious to know in general
         return copy.deepcopy(self._board)
 
+
     def get_turn(self) -> bool:
         """() -> bool
         returns True if white's turn, False if black
         """
         return self._turn
 
+
     def get_turnNum(self) -> int:
         """() -> int
         returns integer number of turnNum
         """
         return self._turnNum
+
 
     def __can_move(self, to_move: tuple, move_to: tuple) -> bool:
         # Assumes that to_move and move_to are in bounds
@@ -325,21 +367,6 @@ class Chess:
             self._castle = True
             return self.__check_for_check(to_move,move_to)
 
-    def promote(self, move_to: tuple, piece):
-        x,y = move_to
-        print(move_to, piece)
-
-        if piece == "ROOK":
-            self._board[x][y] = pieces.Rook(not self._turn)
-        if piece == "KNIGHT":
-            self._board[x][y] = pieces.Knight(not self._turn)
-        if piece == "BISHOP":
-            self._board[x][y] = pieces.Bishop(not self._turn)
-        if piece == "QUEEN":
-            self._board[x][y] = pieces.Queen(not self._turn)
-
-        self._game_state = State.NORMAL
-        return self._game_state.name
 
     def __move_piece(self, to_move: tuple, move_to: tuple):
         # Assumes to_move can move to move_to
@@ -414,6 +441,7 @@ class Chess:
 
         return self._game_state.name # OUTPUT TO GUI
 
+
     def __check_for_check(self, to_move: tuple, move_to: tuple) -> bool:
         row1, col1 = to_move
         row2, col2 = move_to
@@ -425,6 +453,7 @@ class Chess:
         self._board[row1][col1] = piece_to_move
         self._board[row2][col2] = piece_to_remove
         return not checked
+
 
     def __in_check(self, check_white: bool) -> bool:
         # Returns true/false based on self._board
@@ -542,6 +571,7 @@ class Chess:
 
         return False
 
+
     def __in_check_mate(self, check_white: bool) -> bool:
         for i in range(8):
             for x in range(8):
@@ -550,6 +580,7 @@ class Chess:
                     if self.valid_moves((i,x)):
                         return False
         return True
+
 
     def save_board(self) -> bool:
         """()-> bool
@@ -569,10 +600,12 @@ class Chess:
                     print("unable to save ", col, "@ ", row_num, col_num)
         print("Finished saving current board state")
 
-    def load_board(self, turnNumber = -1) -> List[List[pieces.Piece]]:
-        """()-> List[List[pieces.Piece]]
+
+    def load_board(self, turnNumber: int = -1) -> List[List[pieces.Piece]]:
+        """(turnNumber: int)-> List[List[pieces.Piece]]
         returns a deepcopy of the present board
-        Loads previous state of the board. Takes in one parameter, which is the turn number the player wishes to return to. Default is previous round.
+        Loads previous state of the board. Takes in one parameter, which is the
+        turn number the player wishes to return to. Default is previous round.
         """
         #Cant use self. in default arg, so default arg is done below
         turnNumber = turnNumber if turnNumber > -1 else self._turnNum - 1
@@ -603,11 +636,17 @@ class Chess:
         self._board = tempBoard
         self._turnNum = turnNumber
 
+
     @staticmethod
-    def delete_saves():
+    def delete_saves() -> None:
         db.clearState()
 
+
     def board_to_string(self) -> str:
+        """()-> str
+        converts the board into a long string for servers. Towards the end,
+        after the 'Z' letter, is the turnNum count and the current color's turn.
+        """
         board = ""
         for row in self._board:
             for col in row:
@@ -625,7 +664,12 @@ class Chess:
         board += "Z" + str(self._turnNum) + (self._turn and "E" or "L")
         return board
 
+
     def string_to_board(self, conv: str) -> None:
+        """(conv: str)-> None
+        imports a string usually resulted from board_to_string() to the Class'
+        board, turnNum, and current player color. Saves the board to the database.
+        """
         board = [[None for _ in range(8)] for _ in range(8)]
         i = x = 0
         start = conv[:conv.find("Z")]
@@ -673,6 +717,7 @@ class Chess:
         self._turn = end[-1] == "E" and True or False
         self.save_board()
 
+
     @staticmethod
     def __out_of_bounds(bounds: tuple) -> bool:
         for bound in bounds:
@@ -680,8 +725,13 @@ class Chess:
                 return True
         return False
 
+
     @staticmethod
     def get_starting_board() -> List[List[pieces.Piece]]:
+        """()-> List[List[pieces.Piece]]
+        generates the starting board for the class. Able to be called outside
+        of the class when needed.
+        """
         board = [[None for _ in range(8)] for _ in range(8)]
         for i in range(8):
             board[1][i] = pieces.Pawn(color=False)
