@@ -449,6 +449,9 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
             drawChessGame(screen, game, moveClicks, validMoves) 
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                 drawChessEndgame(screen, clock, game, state, 2)
+            if state == "PROMOTION":
+                state = promotePawn(screen, game, promote)
+                promote = ()
             # p.display.set_mode((_WIDTH-256, _HEIGHT))
 #        elif _ON_MENU:
 #            IngameMenu(screen, clock)
