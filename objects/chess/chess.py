@@ -615,7 +615,7 @@ class Chess:
                             board += "X"
                         else:
                             board += "Y"
-        board += "Z" + str(self._turnNum) + (col.is_white() and "E" or "R")
+        board += "Z" + str(self._turnNum) + (self._turn and "E" or "L")
         return board
     
     def string_to_board(self, conv: str) -> None:

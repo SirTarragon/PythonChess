@@ -425,7 +425,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
                             if multiplayer:
                                 if pt == 1 and game.get_turn():
                                     state = movePiece(game, moveClicks)
-                                elif pt == 2 and game.get_turn():
+                                elif pt == 2 and not game.get_turn():
                                     state = movePiece(game, moveClicks)
                             else:
                                 state = movePiece(game, moveClicks)
@@ -440,6 +440,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
                 print("res is: ", res)
                 if res and res != game.board_to_string():
                     game.string_to_board(res)
+                print("TURN IS ", game._turn)
             drawChessGame(screen, game, moveClicks, validMoves)
             save_button, quit_button = InGameMenu(screen, clock, game.get_turn())
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
