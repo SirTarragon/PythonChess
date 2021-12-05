@@ -623,6 +623,7 @@ class Chess:
         i = x = 0
         start = conv[:conv.find("Z")]
         for z, let in enumerate(start):
+            print(let, i, x)
             if let == "O":
                 col = True if start[z+1] == "W" else False
                 piece = pieces.Pawn(color = col)
