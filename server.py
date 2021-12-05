@@ -1,7 +1,11 @@
-#This code is running on the server I set up, not designed to be run locally
+#Code in production on the server
 """
+
 import socket
-from objects.chess.chess import Chess
+try:
+    import chess as Chess
+except ModuleNotFoundError:
+    from .import chess as Chess
 from _thread import *
 import sys
 
@@ -22,33 +26,29 @@ s.listen(2)
 print("Waiting for a connection")
 turnNum = 1
 players = [False, False]
-game = Chess()
+game = Chess.Chess()
 
 def threaded_client(conn, num):
-    global turnNum, players, game_board
+    global turnNum, players, game
     conn.send(str.encode(str(num)))
     while True:
         try:
             data = conn.recv(2048)
             reply = data.decode('utf-8')
-            if game.get_turn() and num == 2:
-                continue
-            if num == 1 and not game.get_turn():
-                continue
-            if not data:
-                #do more game ending shit here
-                conn.send(str.encode("Goodbye"))
-            else:
-                print("Recieved: " + reply)
-                if reply != game.board_to_string():
-                    #udpate game_board
-                    game.string_to_board(reply)
-                print("Sending: " + reply)
+            print("Receiving from clt " +str(num)+": " + reply)
+            if game.get_turn() and num == 1:
+                if data and reply and reply != game.board_to_string():
+                    game.string_to_board(reply)                
+            if num == 2 and not game.get_turn():
+                if data and reply and reply != game.board_to_string():
+                    game.string_to_board(reply)                
+
+            print("Sending to clt " + str(num) + ": " + reply)
 
             conn.sendall(str.encode(game.board_to_string()))
         except:
             break
-
+    players[num-1] = False
     print("Connection Closed")
     conn.close()
 
@@ -57,12 +57,13 @@ while True:
     print("Connected to: ", addr)
     if not players[0]:
         players[0] = True
+        print("Starting thread 1")
         start_new_thread(threaded_client, (conn, 1))
     elif not players[1]:
         players[1] = True
+        print("Starting thread 2")
         start_new_thread(threaded_client, (conn, 2))
     else:
         print("Game is full, rejecting connection")
         conn.close()
-
 """
