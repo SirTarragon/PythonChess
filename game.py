@@ -276,6 +276,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
     if multiplayer:
         client = cl.Client()
         pt = client.color
+        print("Pt is ", pt)
     if load:
       game.load_board(turn)
     else:
@@ -433,10 +434,10 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
                             selectedSquare = ()
                             moveClicks.clear()
                             validMoves.clear()
-
           if _IN_GAME:
             if multiplayer:
                 res = client.send(game.board_to_string())
+                print("res is: ", res)
                 if res and res != game.board_to_string():
                     game.string_to_board(res)
             drawChessGame(screen, game, moveClicks, validMoves)
