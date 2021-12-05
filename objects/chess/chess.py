@@ -38,8 +38,8 @@ class Chess:
         self._enpassant = None
         self._castle = False
         #self.save_board()
-        
-        
+
+
     def attempt_move(self, to_move: tuple, move_to: tuple) -> State:
         """
         (tuple, tuple) -> State
@@ -109,6 +109,12 @@ class Chess:
         returns True if white's turn, False if black
         """
         return self._turn
+
+    def get_turnNum(self) -> int:
+        """() -> int
+        returns integer number of turnNum
+        """
+        return self._turnNum
 
     def __can_move(self, to_move: tuple, move_to: tuple) -> bool:
         # Assumes that to_move and move_to are in bounds
@@ -315,14 +321,14 @@ class Chess:
             else:
                 if self._game_state == State.BLACK_IN_CHECK or self._game_state == State.BLACK_CHECKMATED:
                     return False
-                    
+
             self._castle = True
             return self.__check_for_check(to_move,move_to)
-          
+
     def promote(self, move_to: tuple, piece):
         x,y = move_to
         print(move_to, piece)
-        
+
         if piece == "ROOK":
             self._board[x][y] = pieces.Rook(not self._turn)
         if piece == "KNIGHT":
@@ -331,9 +337,9 @@ class Chess:
             self._board[x][y] = pieces.Bishop(not self._turn)
         if piece == "QUEEN":
             self._board[x][y] = pieces.Queen(not self._turn)
-            
+
         self._game_state = State.NORMAL
-        return self._game_state.name            
+        return self._game_state.name
 
     def __move_piece(self, to_move: tuple, move_to: tuple):
         # Assumes to_move can move to move_to
@@ -405,7 +411,7 @@ class Chess:
         else:
             self._game_state = State.NORMAL
         print("Result state: ", self._game_state.name)
-        
+
         return self._game_state.name # OUTPUT TO GUI
 
     def __check_for_check(self, to_move: tuple, move_to: tuple) -> bool:
@@ -414,7 +420,7 @@ class Chess:
         piece_to_move = self._board[row1][col1]
         piece_to_remove = self._board[row2][col2]
         self._board[row2][col2] = piece_to_move
-        self._board[row1][col1] = None  
+        self._board[row1][col1] = None
         checked = self.__in_check(piece_to_move.is_white())
         self._board[row1][col1] = piece_to_move
         self._board[row2][col2] = piece_to_remove
@@ -618,7 +624,7 @@ class Chess:
                             board += "Y"
         board += "Z" + str(self._turnNum) + (self._turn and "E" or "L")
         return board
-    
+
     def string_to_board(self, conv: str) -> None:
         board = [[None for _ in range(8)] for _ in range(8)]
         i = x = 0
