@@ -38,7 +38,14 @@ class Chess:
         self._enpassant = None
         self._castle = False
         #self.save_board()
-
+        
+    def __str__(self) -> str:
+        output = self.board_to_string()
+        output = output[:8] + "\n" + output[8:16] + "\n" + output[16:24] + \
+         "\n" + output[24:32] + "\n" + output[32:40] + "\n" + output[40:48] + \
+         "\n" + output[48:56] + "\n" + output[56:]
+        return output
+        
     def attempt_move(self, to_move: tuple, move_to: tuple) -> State:
         """
         (tuple, tuple) -> State
