@@ -6,6 +6,8 @@ import client as cl
 import sys
 import time
 
+from objects.chess.chess import Chess
+
 # knowing the width and height (pixel count/area of screen)
 # dimensions of board is usually always 8
 # need to know the length of the squares and something global to hold the images
@@ -534,11 +536,13 @@ def PlayerOptionMenu(screen, clock, mode: bool = False):
                     if option1_button.collidepoint((x,y)):
                         if mode:
                             session = False
+                            Chess.delete_saves()
                             print("Starting local session")
                             ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,load = False)
                         else:
                             session = False
                             print("Player is White")
+                            Chess.delete_saves()
                             ChessGame(p.display.set_mode((_FULLWIDTH, _HEIGHT)),clock,turn = None,aimode = True,load = False,player = True)
                     if option2_button.collidepoint((x,y)):
                         if mode:

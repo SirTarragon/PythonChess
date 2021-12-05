@@ -597,7 +597,8 @@ class Chess:
         self._board = tempBoard
         self._turnNum = turnNumber
 
-    def delete_saves(self):
+    @staticmethod
+    def delete_saves():
         db.clearState()
 
     def board_to_string(self) -> str:
