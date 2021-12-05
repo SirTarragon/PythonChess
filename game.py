@@ -26,10 +26,12 @@ _DROUGHT_COLORS = [p.Color("red"), p.Color("gray"), p.Color("white")]
 
 def loadMenuImages():
     """ ()-> None
-    this loads the image files correlated to the main menu. These images need to be stored in the resources/menu/ directory with the appropriately listed names.
+    this loads the image files correlated to the main menu. These images need to
+    be stored in the resources/menu/ directory with the appropriately listed names.
     """
-    mn = 'mainmenu_bg'
-    _IMAGES[mn] = p.image.load("resources/menu/" + mn + ".png")
+    ims = ['mainmenu_bg', 'icon']
+    for im in ims:
+        _IMAGES[im] = p.image.load("resources/menu/" + im + ".png")
 
 def loadChessImages():
     """ ()-> None
@@ -97,7 +99,7 @@ def highlightPieceMovement(screen, game, colors: list, selectedSquare: tuple, ig
               color = colors[0]
             else:
               color = colors[1]
-            
+
             # inner circle should match background square
             if not ignore:
               p.draw.circle(screen, color, (_SQLEN*c+(_SQLEN/2),_SQLEN*r+(_SQLEN/2)), _SQLEN/2.3)
@@ -140,9 +142,9 @@ def movePiece(game, playerMovement):
         state = game.attempt_move((x1,y1),(x2,y2))
         return state
         #game.__move_piece((x1,y1),(x2,y2))
+
 def promotePawn(screen, game, playerMovement):
-    print("Trying to promote piece at:",playerMovement)
-    board = game.get_board()
+    print("Trying to promote piece at:", playerMovement)
     pieceType = None
 
     count = 100
@@ -199,7 +201,7 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
     if result == "WHITE_CHECKMATED":
         result = "BLACK WINS!"
     if result == "BLACK_CHECKMATED":
-        result = "WHITE WINS!" 
+        result = "WHITE WINS!"
 
     result_label = p.Rect(_SQLEN * 8, 0, _SQLEN * 6, 50)
     count = 185
@@ -214,9 +216,9 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
     menu = font.render("Main Menu", True, p.Color("white"))
     quit = font.render("Quit", True, p.Color("white"))
     result = font.render(result,True,p.Color("white"))
-    
+
     button_color = p.Color("black")
-    
+
     session = True
 
     while session:
@@ -244,31 +246,32 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
                         session = False
                         p.quit()
                         sys.exit()
-                        
+
         info = p.Surface((384,512))
         info.fill(p.Color(240,234,214))
-        screen.blit(info,(512,0))    
+        screen.blit(info,(512,0))
         drawButton(screen, button_color, rematch, rematch_button)
         drawButton(screen, button_color, menu, menu_button)
         drawButton(screen, button_color, quit, quit_button)
         drawButton(screen, "red", result, result_label)
-        
+
         clock.tick(_MINFPS)
         p.display.update()
 
 # need some type of main function that runs in a loop with an exit condition
 # pygame has an event logger and can interface with the exit button
 
-def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: bool = False, secondplayer: bool = False, load: bool = False, multiplayer: bool = False):
+def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
+            player: bool = False, secondplayer: bool = False, load: bool = False,
+            multiplayer: bool = False):
     """ ()-> None
     this is the core process for the ChessGame
     """
     screen.fill(p.Color("white"))
+
     loadChessImages()
-    p.display.set_caption("Chess")
-    p.display.set_icon(_IMAGES['brook'])
     game = chess.Chess()    # need to initialize the game by calling the class
-    pt = 0 
+    pt = 0
     client = None
     if multiplayer:
         client = cl.Client()
@@ -295,14 +298,14 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
       captureMoves = []
       select = ()
 
-    drawChessGame(screen, game, moveClicks, validMoves) 
+    drawChessGame(screen, game, moveClicks, validMoves)
     save_button, quit_button = InGameMenu(screen, clock, game._turn)
 
     # game loop
     while session:
           if aimode and game.get_turn() != player:
             board = game.get_board() # Get updated board before each turn
-            
+
             print("\nGetting CPU movable pieces...")
             for x in range(8):
                 for y in range(8):
@@ -317,31 +320,31 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
                     x1,y1 = validCPUMoves[y]
                     if board[x1][y1] != None:
                         captureMoves.append(CPU_Pieces[x])
-                        
+
             if captureMoves:
                 print("CPU chooses to capture")
                 select = random.randint(0,len(captureMoves)-1)
                 selectedSquare = captureMoves[select]
             else:
                 print("CPU chooses to move")
-                select = random.randint(0,len(CPU_Pieces)-1)    
+                select = random.randint(0,len(CPU_Pieces)-1)
                 selectedSquare = CPU_Pieces[select]
-                
+
             moveClicks.append(selectedSquare)
             validCPUMoves = game.valid_moves(moveClicks[0])
-            
+
             x1, y1 = moveClicks[0]
             print("Computer chose:", str(board[x1][y1]), "at",selectedSquare)
-            
+
             time.sleep(1) # Allows time to see CPU selected piece
-            
+
             captureMoves.clear() # To recieve movement of pieces that can capture
-            
+
             for x in range(len(validCPUMoves)):
                 x1, y1 = validCPUMoves[x]
                 if board[x1][y1] != None:
                     captureMoves.append(validCPUMoves[x])
-                             
+
             if captureMoves:
                 print("CPU choosing capture move at random")
                 print(captureMoves)
@@ -350,12 +353,12 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
             else:
                 print("No capture moves for CPU")
                 print(validCPUMoves)
-                select = random.randint(0,len(validCPUMoves)-1)    
+                select = random.randint(0,len(validCPUMoves)-1)
                 selectedSquare = validCPUMoves[select]
-                
+
             moveClicks.append(selectedSquare)
             print("CPU chose move:", moveClicks[1])
-            
+
             state = movePiece(game,moveClicks)
 
             if state == "PROMOTION":
@@ -436,7 +439,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
                 res = client.send(game.board_to_string())
                 if res and res != game.board_to_string():
                     game.string_to_board(res)
-            drawChessGame(screen, game, moveClicks, validMoves) 
+            drawChessGame(screen, game, moveClicks, validMoves)
             save_button, quit_button = InGameMenu(screen, clock, game.get_turn())
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                 drawChessEndgame(screen, clock, game, state, 2)
@@ -449,15 +452,15 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
 
           clock.tick(_MINFPS)
           p.display.flip()    # updates the screen
-        
-# MENU UTILITIES ----------------------------------------------------------------------------------
+
+# MENU UTILITIES ---------------------------------------------------------------
 
 def drawButton(screen, color, ren, button):
     draw = p.draw.rect(screen, color, button)
     loc = ren.get_rect(center = draw.center)
     screen.blit(ren, loc)
 
-# MENUS -------------------------------------------------------------------------------------------
+# MENUS ------------------------------------------------------------------------
 
 def InGameMenu(screen, clock, turn):
     """ ()-> None
@@ -465,16 +468,16 @@ def InGameMenu(screen, clock, turn):
     """
     turnText = "white" if turn else "black"
     turnFill = "white" if not turn else "black"
-    
+
     info = p.Surface((384,384))
     info.fill(p.Color(240,234,214))
     menu = p.Surface((384,128))
     menu.fill(p.Color(255,204,203))
     screen.blit(info,(512,0))
     screen.blit(menu,(512,384))
-    
+
     count = 416
-    
+
     turn_button = p.Rect(_SQLEN * 8, 0, _SQLEN * 6, 30)
     quit_button = p.Rect(_SQLEN * 8 + 5, count, _SQLEN * 3 - 10, 50)
     save_button = p.Rect(_SQLEN * 11 + 5, count, _SQLEN * 3 - 10, 50)
@@ -483,24 +486,24 @@ def InGameMenu(screen, clock, turn):
     quit = font.render("Quit", True, p.Color("white"))
     save = font.render("Save", True, p.Color("white"))
     turn = font.render("White Turn" if turn else "Black Turn", True, p.Color(turnText))
-    
+
     drawButton(screen, "red", quit, quit_button)
     drawButton(screen, "red", save, save_button)
     drawButton(screen, turnFill, turn, turn_button)
 
     return save_button, quit_button
-    
+
 def PlayerOptionMenu(screen, clock, mode: bool = False):
     """ ()-> None
     this function draws the in-game menu system to interact with
-    """    
+    """
     choice_label = p.Rect(_SQLEN, 150, _SQLEN * 6, 50)
     option1_button = p.Rect(_SQLEN * 2, 205, _SQLEN * 4, 50)
     option2_button = p.Rect(_SQLEN * 2, 260, _SQLEN * 4, 50)
     back_button = p.Rect(_SQLEN * 2, 315, _SQLEN * 4, 50)
 
     font = p.font.SysFont('Arial', 25)
-    
+
     if mode:
       choice_text = "Two-player Local Device or Online"
       option1_text = "Local"
@@ -513,6 +516,8 @@ def PlayerOptionMenu(screen, clock, mode: bool = False):
     option1 = font.render(option1_text, True, p.Color("white"))
     option2 = font.render(option2_text, True, p.Color("white"))
     back = font.render("Main Menu", True, p.Color("white"))
+
+    screen.blit(_IMAGES['mainmenu_bg'], (0,0))
 
     session = True
 
@@ -546,14 +551,12 @@ def PlayerOptionMenu(screen, clock, mode: bool = False):
                           session = False
                           print("Back to Main Menu")
                           MainMenu(screen,clock)
-    
-        screen.fill(p.Color("gray"))
-        
+
         drawButton(screen, "black", choice, choice_label)
-        drawButton(screen, "red", option1, option1_button)
-        drawButton(screen, "red", option2, option2_button)
-        drawButton(screen, "red", back, back_button)
-    
+        drawButton(screen, "gray30", option1, option1_button)
+        drawButton(screen, "gray30", option2, option2_button)
+        drawButton(screen, "gray30", back, back_button)
+
         clock.tick(_MINFPS)
         p.display.update()
 
@@ -569,7 +572,7 @@ def LoadSaveMenu(screen, clock):
     active = False
     text = ""
 
-    screen.fill(p.Color("gray"))
+    screen.blit(_IMAGES['mainmenu_bg'], (0,0))
 
     while session:
         for event in p.event.get():
@@ -611,12 +614,16 @@ def LoadSaveMenu(screen, clock):
                     text = text[:-1]
 
         drawButton(screen, "black", input_text, input_label)
-        drawButton(screen, "red", back, back_button)
+        drawButton(screen, "gray30", back, back_button)
 
         p.display.flip()
 
 # this will be opened first, and it's what will call the game to run.
 def MainMenu(screen, clock):
+    loadMenuImages()
+    p.display.set_caption("Chess")
+    p.display.set_icon(_IMAGES['icon'])
+
     count = 100
     play_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
     count += 100
@@ -627,13 +634,15 @@ def MainMenu(screen, clock):
     quit_button = p.Rect(_SQLEN * 2, count, _SQLEN * 4, 50)
 
     font = p.font.SysFont('Arial', 25)
-    play = font.render("Single Player Game", True, p.Color("white"))
+    play = font.render("Single Player", True, p.Color("white"))
     multi = font.render("Multiplayer", True, p.Color("white"))
     load = font.render("Load Previous", True, p.Color("white"))
     quit = font.render("Quit", True, p.Color("white"))
 
-    button_color = p.Color("red")
+    button_color = p.Color("gray30")
     session = True
+
+    screen.blit(_IMAGES['mainmenu_bg'], (0,0))
 
     while session:
         for event in p.event.get():
@@ -655,21 +664,17 @@ def MainMenu(screen, clock):
                         print("Loading Previous Session")
                         session = False
                         LoadSaveMenu(screen, clock)
-                        
+
                     if quit_button.collidepoint((x,y)):
                         print("Quitting...")
                         session = False
                         p.quit()
                         sys.exit()
 
-
-        #screen.blit(_IMAGES['mainmenu_background'], (0,0))
-        screen.fill(p.Color("gray"))
-
         drawButton(screen, button_color, play, play_button)
         drawButton(screen, button_color, multi, multi_button)
         drawButton(screen, button_color, load, load_button)
-        drawButton(screen, button_color, quit, quit_button)
+        drawButton(screen, "red", quit, quit_button)
 
         clock.tick(_MINFPS)
         p.display.update()
