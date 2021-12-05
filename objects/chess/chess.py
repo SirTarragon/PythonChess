@@ -615,13 +615,14 @@ class Chess:
                             board += "X"
                         else:
                             board += "Y"
-        board += str(self._turnNum)
+        board += "Z" + str(self._turnNum) + col.is_white() and "W" or "U"
         return board
     
     def string_to_board(self, conv: str) -> None:
         board = [[None for _ in range(8)] for _ in range(8)]
         i = x = 0
         start = conv[:conv.find("Z")]
+        end = conv[conv.find("Z") + 1:]
         for z, let in enumerate(start):
             print(let, i, x)
             if let == "O":
@@ -661,8 +662,8 @@ class Chess:
                 else:
                     x += 1
         self._board = board
-        self._turnNum += 1
-        self._turn = not self._turn
+        self._turnNum = int(end[:-1])
+        self._turn = end[-1] == "W" and True or False
         self.save_board()
 
     @staticmethod
