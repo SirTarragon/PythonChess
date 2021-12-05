@@ -436,6 +436,9 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
                             selectedSquare = ()
                             moveClicks.clear()
                             validMoves.clear()
+          if state == "PROMOTION":
+              state = promotePawn(screen, game, promote)
+              promote = ()
           if _IN_GAME:
             if multiplayer:
                 res = client.send(game.board_to_string())
@@ -450,10 +453,6 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False,
             # p.display.set_mode((_WIDTH-256, _HEIGHT))
     #        elif _ON_MENU:
     #            IngameMenu(screen, clock)
-          if state == "PROMOTION":
-              state = promotePawn(screen, game, promote)
-              promote = ()
-
           clock.tick(_MINFPS)
           p.display.flip()    # updates the screen
 
