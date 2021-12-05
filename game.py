@@ -143,7 +143,7 @@ def promotePawn(screen, game, playerMovement):
     print("Trying to promote piece at:",playerMovement)
     board = game.get_board()
     pieceType = None
-    
+
     count = 100
     rook_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
     count += 55
@@ -152,13 +152,13 @@ def promotePawn(screen, game, playerMovement):
     bishop_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
     count += 55
     queen_button = p.Rect(_SQLEN * 9, count, _SQLEN * 4, 50)
-            
+
     font = p.font.SysFont('Arial', 25)
     rook= font.render("Rook", True, p.Color("white"))
     knight = font.render("Knight", True, p.Color("white"))
     bishop = font.render("Bishop", True, p.Color("white"))
     queen = font.render("Queen", True, p.Color("white"))
-    
+
     session = True
     while session:
         for event in p.event.get():
@@ -180,15 +180,15 @@ def promotePawn(screen, game, playerMovement):
                     if queen_button.collidepoint((x,y)):
                         session = False
                         pieceType = "QUEEN"
-                        
+
         drawButton(screen, "black", rook, rook_button)
         drawButton(screen, "black", knight, knight_button)
         drawButton(screen, "black", bishop, bishop_button)
         drawButton(screen, "black", queen, queen_button)
-        
+
         clock.tick(_MINFPS)
         p.display.update()
-    
+
     return game.promote(playerMovement, pieceType)
 
 def drawChessEndgame(screen, clock, game, result, player: int = 1):
@@ -259,19 +259,6 @@ def drawChessEndgame(screen, clock, game, result, player: int = 1):
 # pygame has an event logger and can interface with the exit button
 
 def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: bool = False, secondplayer: bool = False, load: bool = False, multiplayer: bool = False):
-    info = p.Surface((384,384))
-    info.fill(p.Color((240, 234, 214))) # (240, 234, 214)
-    menu = p.Surface((384,128))
-    menu.fill(p.Color(255,204,203))
-    
-    count = 416
-
-    quit_button = p.Rect(_SQLEN * 8 + 5, count, _SQLEN * 3 - 10, 50)
-    save_button = p.Rect(_SQLEN * 11 + 5, count, _SQLEN * 3 - 10, 50)
-
-    font = p.font.SysFont('Arial', 20)
-    quit = font.render("Quit to Main Menu", True, p.Color("white"))
-    save = font.render("Save", True, p.Color("white"))
     """ ()-> None
     this is the core process for the ChessGame
     """
@@ -288,7 +275,7 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
     _IN_GAME = True
 
     selectedSquare = ()     # need something to hold the selected spot on the GUI
-    promote = ()      # Used for promotion
+    promote = () # Used for promotion
     moveClicks = []       # need to keep track of the player clicks
     validMoves = []
     state = None
@@ -301,22 +288,14 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
       validCPUMoves = []
       captureMoves = []
       select = ()
-         
+
+    drawChessGame(screen, game, moveClicks, validMoves) 
+    save_button, quit_button = InGameMenu(screen, clock, game._turn)
+
     # game loop
     while session:
-        turnText = "white" if game._turn else "black"
-        turnFill = "white" if not game._turn else "black"
-        turn_label = p.Rect(_SQLEN * 8, 0, _SQLEN * 6, 30)
-        turn = font.render("White Turn" if game._turn else "Black Turn", True, p.Color(turnText))
-        
-        if aimode and game.get_turn() != player:
+          if aimode and game.get_turn() != player:
             board = game.get_board() # Get updated board before each turn
-            
-            if _IN_GAME and not select:
-                drawChessGame(screen, game, moveClicks, validCPUMoves)
-                    
-            clock.tick(_MINFPS)
-            p.display.flip()    # updates the screen
             
             print("\nGetting CPU movable pieces...")
             for x in range(8):
@@ -348,12 +327,6 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
             x1, y1 = moveClicks[0]
             print("Computer chose:", str(board[x1][y1]), "at",selectedSquare)
             
-            if _IN_GAME:
-                drawChessGame(screen, game, moveClicks, validCPUMoves) 
-                    
-            clock.tick(_MINFPS)
-            p.display.flip()    # updates the screen
-            
             cl.time.sleep(1) # Allows time to see CPU selected piece
             
             captureMoves.clear() # To recieve movement of pieces that can capture
@@ -378,13 +351,13 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
             print("CPU chose move:", moveClicks[1])
             
             state = movePiece(game,moveClicks)
-            
+
             if state == "PROMOTION":
                 x, y = moveClicks[1]
                 print("CPU promotes pawn to queen")
                 state = game.promote((x,y), "QUEEN")
                 promote = ()
-                
+
             if len(moveClicks) == 2:
                 selectedSquare = ()
                 select = ()
@@ -393,77 +366,73 @@ def ChessGame(screen, clock, turn: int = None, aimode: bool = False, player: boo
                 captureMoves.clear()
                 CPU_Pieces.clear()
 
-        for event in p.event.get():
-            if event.type == p.QUIT:
-                p.quit()
-                sys.exit()
-            elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
-                if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
-                    location = p.mouse.get_pos()
-                    col,row = location
-                    col = col // _SQLEN
-                    row = row // _SQLEN;
-                    
-                    if row > 8 or col > 8:
-                       if quit_button.collidepoint((location[0],location[1])):
-                            print("Leaving game early at turn:",game._turnNum)
-                            session = False
-                            MainMenu(p.display.set_mode((_WIDTH, _HEIGHT)),clock)
-                            
-                    if selectedSquare == (row, col):
-                        selectedSquare = ()
-                        if moveClicks:        # to prevent any heinous bugs due to empty list
+          else:
+            for event in p.event.get():
+                if event.type == p.QUIT:
+                    p.quit()
+                    sys.exit()
+                elif event.type == p.MOUSEBUTTONDOWN and _IN_GAME:
+                    if event.button == 1 or event.button == 3:  # limits it to left and right mousebuttons
+                        location = p.mouse.get_pos()
+                        col,row = location
+                        col = col // _SQLEN
+                        row = row // _SQLEN;
+
+                        if row > 8 or col > 8:
+                           if quit_button.collidepoint((location[0],location[1])):
+                                print("Leaving game early at turn:",game._turnNum)
+                                session = False
+                                MainMenu(p.display.set_mode((_WIDTH, _HEIGHT)),clock)
+
+                        if selectedSquare == (row, col):
+                            selectedSquare = ()
+                            if moveClicks:        # to prevent any heinous bugs due to empty list
+                                moveClicks.clear()
+                            if validMoves:
+                                validMoves.clear()
+                        elif row < 8 and col < 8: # Only adds clicks that are on gameboard
+                            selectedSquare = (row, col)
+                            moveClicks.append(selectedSquare)
+                        else:
+                            continue
+
+                        if len(moveClicks) == 1:
+                            tx,ty = moveClicks[0]
+
+#                        if ty < 8:		# Only checks clicks that are on gameboard
+                        if game.get_board()[tx][ty] == None:
+                            selectedSquare = ()
+                            if moveClicks:
+                                moveClicks.clear()
+                            if validMoves:
+                                validMoves.clear()
+                        elif moveClicks:
+                            validMoves = game.valid_moves(moveClicks[0])
+
+                            print(f"Selected for movement: {selectedSquare}")
+
+                        if len(moveClicks) == 2:
+                            state = movePiece(game,moveClicks)
+                            if state == "PROMOTION":
+                                promote = moveClicks[1]
+                            selectedSquare = ()
                             moveClicks.clear()
-                        if validMoves:
                             validMoves.clear()
-                    elif row < 8 and col < 8: # Only adds clicks that are on gameboard
-                        selectedSquare = (row, col)
-                        moveClicks.append(selectedSquare)
-                    else:
-                        continue
-                    
-                    if len(moveClicks) == 1:
-                        tx,ty = moveClicks[0]
 
-#                    if ty < 8:		# Only checks clicks that are on gameboard
-                    if game.get_board()[tx][ty] == None:
-                        selectedSquare = ()
-                        if moveClicks:
-                            moveClicks.clear()
-                        if validMoves:
-                            validMoves.clear()
-                    elif moveClicks:
-                        validMoves = game.valid_moves(moveClicks[0])
-
-                        print(f"Selected for movement: {selectedSquare}")
-
-                    if len(moveClicks) == 2:
-                        state = movePiece(game,moveClicks)
-                        if state == "PROMOTION":
-                            promote = moveClicks[1]
-                        selectedSquare = ()
-                        moveClicks.clear()
-                        validMoves.clear()
-
-        if _IN_GAME:
+          if _IN_GAME:
             drawChessGame(screen, game, moveClicks, validMoves) 
+            save_button, quit_button = InGameMenu(screen, clock, game.get_turn())
             if state == "STALEMATE" or state == "BLACK_CHECKMATED" or state == "WHITE_CHECKMATED":
                 drawChessEndgame(screen, clock, game, state, 2)
-            if state == "PROMOTION":
-                state = promotePawn(screen, game, promote)
-                promote = ()
             # p.display.set_mode((_WIDTH-256, _HEIGHT))
 #        elif _ON_MENU:
 #            IngameMenu(screen, clock)
+          if state == "PROMOTION":
+              state = promotePawn(screen, game, promote)
+              promote = ()
 
-        screen.blit(info,(512,0))
-        screen.blit(menu,(512,384))
-        drawButton(screen, "red", quit, quit_button)
-        drawButton(screen, "red", save, save_button)
-        drawButton(screen, turnFill, turn, turn_label)
-        
-        clock.tick(_MINFPS)
-        p.display.flip()    # updates the screen
+          clock.tick(_MINFPS)
+          p.display.flip()    # updates the screen
         
 # MENU UTILITIES ----------------------------------------------------------------------------------
 
@@ -474,12 +443,12 @@ def drawButton(screen, color, ren, button):
 
 # MENUS -------------------------------------------------------------------------------------------
 
-def InGameMenu(screen, clock, _turn):
+def InGameMenu(screen, clock, turn):
     """ ()-> None
     this function draws the in-game menu system to interact with
     """
-    turnText = "white" if _turn else "black"
-    turnFill = "white" if not _turn else "black"
+    turnText = "white" if turn else "black"
+    turnFill = "white" if not turn else "black"
     
     info = p.Surface((384,384))
     info.fill(p.Color(240,234,214))
@@ -497,7 +466,7 @@ def InGameMenu(screen, clock, _turn):
     font = p.font.SysFont('Arial', 25)
     quit = font.render("Quit", True, p.Color("white"))
     save = font.render("Save", True, p.Color("white"))
-    turn = font.render("White Turn" if _turn else "Black Turn", True, p.Color(turnText))
+    turn = font.render("White Turn" if turn else "Black Turn", True, p.Color(turnText))
     
     drawButton(screen, "red", quit, quit_button)
     drawButton(screen, "red", save, save_button)
