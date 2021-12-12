@@ -39,6 +39,7 @@ To develop a playable chess game without any game specific libraries through Pyt
 * A clean and effective GUI system for visual representation of gameplay
 
 INSTRUCTIONS FOR USER INTERFACE (OUTSIDE THE OBVIOUS):
+* Castling can only be initiated by the King.
 
 LIST OF PYTHON LIBRARIES USED:
 * pygame - for handling the graphical portions of the game
