@@ -128,7 +128,6 @@ class Chess:
             self._board[x][y] = pieces.Bishop(not self._turn)
         if piece == "QUEEN":
             self._board[x][y] = pieces.Queen(not self._turn)
-        self._turnNum += 1
         self._game_state = State.NORMAL
         return self._game_state.name
 
