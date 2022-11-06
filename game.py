@@ -1,8 +1,8 @@
 from objects import chess
+from objects import client as cl
 from datetime import datetime
 import random
 import pygame as p
-import client as cl
 import sys
 import time
 
