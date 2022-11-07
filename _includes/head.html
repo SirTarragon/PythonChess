@@ -1,0 +1,27 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#3273DC">
+    <meta name="author" content="{{ site.author }}">
+    {% capture description %}
+        {% if page.description %}
+            {{ page.description | strip_html }}
+        {% elsif page.subtitle %}
+            {{ page.subtitle | strip_html }}
+        {% else %}
+            {{ site.description }}
+        {% endif %}
+    {% endcapture %}
+    <meta name="description" content="{{ description | strip }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:description" content="{{ description | strip }}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@sirtarragon">
+    <meta name="twitter:creator" content="@sirtarragon">
+    <meta name="x-build-time" content="{{ site.time | date_to_rfc822 }}">
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <link rel="icon" href="/assets/images/logo.ico">
+    <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+</head>

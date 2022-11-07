@@ -1,0 +1,19 @@
+title: PythonChess
+author: Tyler Pease
+keywords: python, pygame, chess, game, school project
+last_updated: November 6, 2022
+markdown: kramdown
+permalink: /blog/:year/:month/:day/:title
+
+plugins: 
+  - jekyll-octicons
+  - jekyll-github-metadata
+  - jekyll-gist
+
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - license
+  - CNAME

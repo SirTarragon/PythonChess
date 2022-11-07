@@ -1,0 +1,142 @@
+---
+layout: default
+title: Home
+---
+<section class="hero is-fullheight">
+	<div class="container">
+		<style>
+			div.img {
+				border: 1px solid #ccc;
+			}
+			
+			div.img:hover {
+				border: 1px solid #777;
+			}
+			
+			div.img img {
+				width: 100%;
+				height: auto;
+			}
+			
+			div.desc {
+				padding: 15px;
+				text-align: center;
+			}
+			
+			* {
+				box-sizing: border-box;
+			}
+			
+			.responsive {
+				padding: 0 6px;
+				float: left;
+				width: 24.99999%;
+			}
+			
+			@media only screen and (max-width: 700px){
+				.responsive {
+				   width: 49.99999%;
+					margin: 6px 0;
+				}
+			}
+			
+			@media only screen and (max-width: 500px){
+				.responsive {
+					width: 100%;
+				}
+			}
+			
+			.clearfix:after {
+				content: "";
+				display: table;
+				clear: both;
+			}
+			</style>
+			
+		<br>
+		<br>
+		<h1 align="center"><strong>PYTHONCHESS</strong></h1><br>
+		<p align="center">
+		<a href="https://github.com/SirTarragon/PythonChess">GITHUB LINK</a> - <a href="https://github.com/SirTarragon/PythonChess/releases/tag/official">DOWNLOAD LINK</a>
+		</p>
+		<br>
+		<br>
+		{% capture desc %}{% include_relative markdown/desc.md %}{% endcapture %}
+						{{ desc | markdownify }}
+						<br>
+						<br>
+		<div align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/WhFTBNQayJo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</div>
+		<br>
+		<br>
+		<div>
+		  <div class="responsive">
+			<div class="img">
+				<a target="_blank" href="assets/images/mainmenu.png">
+				  <img src="assets/images/mainmenu.png" alt="Chess game main menu" width="300" height="200">
+				</a>
+				<div class="desc">Image of the main menu</div>
+			</div>
+		  </div>
+		  <div class="responsive">
+			<div class="img">
+				<a target="_blank" href="assets/images/beginning.png">
+				  <img src="assets/images/beginning.png" alt="Image of a beginning screen shot of a match" width="300" height="200">
+				</a>
+				<div class="desc">Image of the beginning of a match</div>
+			</div>
+		  </div>
+		  <div class="responsive">
+			<div class="img">
+				<a target="_blank" href="assets/images/forfeit.png">
+				  <img src="assets/images/forfeit.png" alt="Image of a victors screen after player forfeited" width="300" height="200">
+				</a>
+				<div class="desc">Image of a victors screen after player forfeited</div>
+			</div>
+		  </div>
+		  <div class="responsive">
+			<div class="img">
+				<a target="_blank" href="assets/images/server.png">
+				  <img src="assets/images/server.png" alt="Image of a victors screen after player forfeited" width="300" height="200">
+				</a>
+				<div class="desc">Image of data sent to the server</div>
+			</div>
+		  </div>
+		</div>
+		
+		<br clear="left">
+		<br>
+		<br>
+		
+		<h2><strong>REQUIREMENTS</strong></h2><br>
+		{% capture require %}{% include_relative markdown/requirements.md %}{% endcapture %}
+						{{ require | markdownify }}
+						<br>
+		<h2><strong>INSTALLATION</strong></h2><br>
+		{% capture install %}{% include_relative markdown/install.md %}{% endcapture %}
+						{{ install | markdownify }}
+						<br>
+		<h2><strong>INSTALLATION ON SERVER</strong></h2><br>
+		{% capture installsrv %}{% include_relative markdown/installsrv.md %}{% endcapture %}
+						{{ installsrv | markdownify }}
+						<br>
+		<h2><strong>PROBLEM</strong></h2><br>
+		{% capture problem %}{% include_relative markdown/problem.md %}{% endcapture %}
+						{{ problem | markdownify }}
+						<br>
+		<h2><strong>INSTRUCTIONS FOR USER INTERFACE (OUTSIDE THE OBVIOUS)</strong></h2><br>
+		{% capture instructions %}{% include_relative markdown/instructions.md %}{% endcapture %}
+						{{ instructions | markdownify }}
+						<br>
+		<h2><strong>LIST OF PYTHON LIBRARIES USED</strong></h2><br>
+		{% capture libraries %}{% include_relative markdown/libraries.md %}{% endcapture %}
+						{{ libraries | markdownify }}
+						<br>
+		<h2><strong>SEPARATION OF WORK</strong></h2>
+		<br>
+		{% capture separation %}{% include_relative markdown/separation.md %}{% endcapture %}
+						{{ separation | markdownify }}
+		<br>
+	</div>
+</section>
