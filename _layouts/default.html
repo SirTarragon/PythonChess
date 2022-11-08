@@ -2,7 +2,11 @@
 <html lang="en">
 	{% include head.html %}
 	<body>
-		{{ content }}
+		<div class="columns is-vcentered is-centered is-text-centered">
+			<div class="column is-half is-narrow content">
+				{{ content }}
+			</div>
+		</div>
 	</body>
 	{% include foot.html %}
 </html>
