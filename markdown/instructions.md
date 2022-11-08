@@ -1,1 +1,1 @@
-* • Castling can only be initiated by the King.
+* Castling can only be initiated by the King.
